@@ -793,9 +793,11 @@ pulseChart.update();  // 更新图表
 function updateCharts() {
     if (bloodPressureChart) {
         bloodPressureChart.destroy();
+        bloodPressureChart = null;
     }
     if (pulseChart) {
         pulseChart.destroy();
+        pulseChart = null;
     }
     
     // 重新创建图表
@@ -818,11 +820,196 @@ document.getElementById('applySettings').addEventListener('click', function() {
 function createCharts() {
     // 创建血压图表
     bloodPressureChart = new Chart(bloodPressureCtx, {
-        // ... 图表配置 ...
+        type: 'line',
+        data: {
+            labels: data.map(entry => entry.date),
+            datasets: [
+                // ... datasets configuration ...
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: Math.floor(pressureRange.min),
+                    max: Math.ceil(pressureRange.max),
+                    title: {
+                        display: true,
+                        text: '血压 (mmHg)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    // ... legend configuration ...
+                },
+                tooltip: {
+                    // ... tooltip configuration ...
+                },
+                annotation: {
+                    common: {
+                        drawTime: 'afterDatasetsDraw'
+                    },
+                    annotations: {
+                        highPressureMax: {
+                            type: 'line',
+                            yMin: pressureSettings.highPressureMax,
+                            yMax: pressureSettings.highPressureMax,
+                            borderColor: 'rgb(255, 0, 0)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            label: {
+                                content: `高压上限 ${pressureSettings.highPressureMax}mmHg`,
+                                enabled: true,
+                                position: 'start',
+                                backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                                color: 'rgb(255, 0, 0)'
+                            }
+                        },
+                        highPressureMin: {
+                            type: 'line',
+                            yMin: pressureSettings.highPressureMin,
+                            yMax: pressureSettings.highPressureMin,
+                            borderColor: 'rgb(255, 0, 0)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            label: {
+                                content: `高压下限 ${pressureSettings.highPressureMin}mmHg`,
+                                enabled: true,
+                                position: 'start',
+                                backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                                color: 'rgb(255, 0, 0)'
+                            }
+                        },
+                        lowPressureMax: {
+                            type: 'line',
+                            yMin: pressureSettings.lowPressureMax,
+                            yMax: pressureSettings.lowPressureMax,
+                            borderColor: 'rgb(252, 117, 7)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            label: {
+                                content: `低压上限 ${pressureSettings.lowPressureMax}mmHg`,
+                                enabled: true,
+                                position: 'start',
+                                backgroundColor: 'rgba(252, 117, 7, 0.1)',
+                                color: 'rgb(252, 117, 7)'
+                            }
+                        },
+                        lowPressureMin: {
+                            type: 'line',
+                            yMin: pressureSettings.lowPressureMin,
+                            yMax: pressureSettings.lowPressureMin,
+                            borderColor: 'rgb(252, 117, 7)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            label: {
+                                content: `低压下限 ${pressureSettings.lowPressureMin}mmHg`,
+                                enabled: true,
+                                position: 'start',
+                                backgroundColor: 'rgba(252, 117, 7, 0.1)',
+                                color: 'rgb(252, 117, 7)'
+                            }
+                        },
+                        highPressureAvg: {
+                            type: 'line',
+                            yMin: highPressureAvg,
+                            yMax: highPressureAvg,
+                            borderColor: 'rgb(255, 99, 132)',
+                            borderWidth: 2,
+                            borderDash: [],
+                            label: {
+                                content: `高压平均值 ${highPressureAvg}mmHg`,
+                                enabled: true,
+                                position: 'end',
+                                xAdjust: 10,
+                                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                                color: 'rgb(255, 99, 132)'
+                            }
+                        },
+                        lowPressureAvg: {
+                            type: 'line',
+                            yMin: lowPressureAvg,
+                            yMax: lowPressureAvg,
+                            borderColor: 'rgb(54, 162, 235)',
+                            borderWidth: 2,
+                            borderDash: [],
+                            label: {
+                                content: `低压平均值 ${lowPressureAvg}mmHg`,
+                                enabled: true,
+                                position: 'end',
+                                xAdjust: 10,
+                                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                                color: 'rgb(54, 162, 235)'
+                            }
+                        }
+                    }
+                }
+            }
+        }
     });
 
     // 创建脉搏图表
     pulseChart = new Chart(pulseCtx, {
-        // ... 图表配置 ...
+        type: 'line',
+        data: {
+            // ... data configuration ...
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: Math.floor(pulseRange.min),
+                    max: Math.ceil(pulseRange.max),
+                    title: {
+                        display: true,
+                        text: '脉搏 (次/分)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    // ... legend configuration ...
+                },
+                tooltip: {
+                    // ... tooltip configuration ...
+                },
+                annotation: {
+                    common: {
+                        drawTime: 'afterDatasetsDraw'
+                    },
+                    annotations: {
+                        pulseAvg: {
+                            type: 'line',
+                            yMin: pulseAvg,
+                            yMax: pulseAvg,
+                            borderColor: 'rgb(75, 192, 192)',
+                            borderWidth: 2,
+                            borderDash: [],
+                            label: {
+                                content: `脉搏平均值 ${pulseAvg}次/分`,
+                                enabled: true,
+                                position: 'end',
+                                xAdjust: 10,
+                                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                                color: 'rgb(75, 192, 192)'
+                            }
+                        }
+                    }
+                }
+            }
+        }
     });
 } 
