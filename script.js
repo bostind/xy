@@ -375,6 +375,13 @@ function createChart(data) {
                 }
             },
             plugins: {
+                legend: {
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 5,
+                        padding: 5
+                    }
+                },
                 tooltip: {
                     callbacks: {
                         title: function(context) {
