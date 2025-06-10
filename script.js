@@ -376,6 +376,37 @@ function createChart(data) {
                     title: {
                         display: true,
                         text: '血压 (mmHg)'
+                    },
+                    grid: {
+                        display: true,
+                        color: 'rgba(0, 0, 0, 0.1)',
+                        drawBorder: true,
+                        drawOnChartArea: true,
+                        drawTicks: true
+                    },
+                    position: 'left'
+                },
+                y1: {
+                    beginAtZero: false,
+                    min: Math.floor(lowPressureRange.min),
+                    max: Math.ceil(highPressureRange.max),
+                    position: 'right',
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        display: false
+                    },
+                    afterFit: function(scale) {
+                        scale.paddingRight = 80; // 为右侧标注留出空间
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: true,
+                        drawOnChartArea: false,
+                        drawTicks: true
                     }
                 }
             },
@@ -546,13 +577,19 @@ function createChart(data) {
                             borderColor: 'rgb(255, 99, 132)',
                             borderWidth: 2,
                             borderDash: [],
+                            yScaleID: 'y1',
                             label: {
                                 content: `高压平均值 ${highPressureAvg}mmHg`,
                                 enabled: true,
-                                position: 'end',
-                                xAdjust: 10,
+                                position: 'right',
                                 backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                                color: 'rgb(255, 99, 132)'
+                                color: 'rgb(255, 99, 132)',
+                                xAdjust: 5,
+                                yAdjust: -15,
+                                padding: 4,
+                                font: {
+                                    size: 12
+                                }
                             }
                         },
                         lowPressureAvg: {
@@ -562,13 +599,19 @@ function createChart(data) {
                             borderColor: 'rgb(54, 162, 235)',
                             borderWidth: 2,
                             borderDash: [],
+                            yScaleID: 'y1',
                             label: {
                                 content: `低压平均值 ${lowPressureAvg}mmHg`,
                                 enabled: true,
-                                position: 'end',
-                                xAdjust: 10,
+                                position: 'right',
                                 backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                                color: 'rgb(54, 162, 235)'
+                                color: 'rgb(54, 162, 235)',
+                                xAdjust: 5,
+                                yAdjust: 15,
+                                padding: 4,
+                                font: {
+                                    size: 12
+                                }
                             }
                         }
                     }
@@ -634,6 +677,37 @@ function createChart(data) {
                     title: {
                         display: true,
                         text: '脉搏 (次/分)'
+                    },
+                    grid: {
+                        display: true,
+                        color: 'rgba(0, 0, 0, 0.1)',
+                        drawBorder: true,
+                        drawOnChartArea: true,
+                        drawTicks: true
+                    },
+                    position: 'left'
+                },
+                y1: {
+                    beginAtZero: false,
+                    min: Math.floor(pulseRange.min),
+                    max: Math.ceil(pulseRange.max),
+                    position: 'right',
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        display: false
+                    },
+                    afterFit: function(scale) {
+                        scale.paddingRight = 80; // 为右侧标注留出空间
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: true,
+                        drawOnChartArea: false,
+                        drawTicks: true
                     }
                 }
             },
@@ -744,13 +818,19 @@ function createChart(data) {
                             borderColor: 'rgb(75, 192, 192)',
                             borderWidth: 2,
                             borderDash: [],
+                            yScaleID: 'y1',
                             label: {
                                 content: `脉搏平均值 ${pulseAvg}次/分`,
                                 enabled: true,
-                                position: 'end',
-                                xAdjust: 10,
+                                position: 'right',
                                 backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                                color: 'rgb(75, 192, 192)'
+                                color: 'rgb(75, 192, 192)',
+                                xAdjust: 5,
+                                yAdjust: 0,
+                                padding: 4,
+                                font: {
+                                    size: 12
+                                }
                             }
                         }
                     }
@@ -842,6 +922,21 @@ function createCharts() {
                     title: {
                         display: true,
                         text: '血压 (mmHg)'
+                    },
+                    grid: {
+                        display: true,
+                        color: 'rgba(0, 0, 0, 0.1)',
+                        drawBorder: true,
+                        drawOnChartArea: true,
+                        drawTicks: true
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: true,
+                        drawOnChartArea: false,
+                        drawTicks: true
                     }
                 }
             },
@@ -924,13 +1019,19 @@ function createCharts() {
                             borderColor: 'rgb(255, 99, 132)',
                             borderWidth: 2,
                             borderDash: [],
+                            yScaleID: 'y1',
                             label: {
                                 content: `高压平均值 ${highPressureAvg}mmHg`,
                                 enabled: true,
-                                position: 'end',
-                                xAdjust: 10,
+                                position: 'right',
                                 backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                                color: 'rgb(255, 99, 132)'
+                                color: 'rgb(255, 99, 132)',
+                                xAdjust: 5,
+                                yAdjust: -15,
+                                padding: 4,
+                                font: {
+                                    size: 12
+                                }
                             }
                         },
                         lowPressureAvg: {
@@ -940,13 +1041,19 @@ function createCharts() {
                             borderColor: 'rgb(54, 162, 235)',
                             borderWidth: 2,
                             borderDash: [],
+                            yScaleID: 'y1',
                             label: {
                                 content: `低压平均值 ${lowPressureAvg}mmHg`,
                                 enabled: true,
-                                position: 'end',
-                                xAdjust: 10,
+                                position: 'right',
                                 backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                                color: 'rgb(54, 162, 235)'
+                                color: 'rgb(54, 162, 235)',
+                                xAdjust: 5,
+                                yAdjust: 15,
+                                padding: 4,
+                                font: {
+                                    size: 12
+                                }
                             }
                         }
                     }
@@ -976,6 +1083,37 @@ function createCharts() {
                     title: {
                         display: true,
                         text: '脉搏 (次/分)'
+                    },
+                    grid: {
+                        display: true,
+                        color: 'rgba(0, 0, 0, 0.1)',
+                        drawBorder: true,
+                        drawOnChartArea: true,
+                        drawTicks: true
+                    },
+                    position: 'left'
+                },
+                y1: {
+                    beginAtZero: false,
+                    min: Math.floor(pulseRange.min),
+                    max: Math.ceil(pulseRange.max),
+                    position: 'right',
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        display: false
+                    },
+                    afterFit: function(scale) {
+                        scale.paddingRight = 80; // 为右侧标注留出空间
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: true,
+                        drawOnChartArea: false,
+                        drawTicks: true
                     }
                 }
             },
@@ -998,13 +1136,19 @@ function createCharts() {
                             borderColor: 'rgb(75, 192, 192)',
                             borderWidth: 2,
                             borderDash: [],
+                            yScaleID: 'y1',
                             label: {
                                 content: `脉搏平均值 ${pulseAvg}次/分`,
                                 enabled: true,
-                                position: 'end',
-                                xAdjust: 10,
+                                position: 'right',
                                 backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                                color: 'rgb(75, 192, 192)'
+                                color: 'rgb(75, 192, 192)',
+                                xAdjust: 5,
+                                yAdjust: 0,
+                                padding: 4,
+                                font: {
+                                    size: 12
+                                }
                             }
                         }
                     }
