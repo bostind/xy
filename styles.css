@@ -334,4 +334,53 @@ tr:hover {
 
 .info-icon:hover {
     opacity: 0.8;
+}
+
+/* Chart.js 图例样式 */
+.chartjs-legend-item {
+    cursor: pointer;
+    padding: 5px 10px;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.chartjs-legend-item:hover {
+    background-color: transparent;
+}
+
+.chartjs-legend-item .chartjs-legend-line {
+    width: 40px;
+    height: 1px;
+    margin-right: 8px;
+}
+
+.chartjs-legend-item:hover .chartjs-legend-line {
+    opacity: 1;
+}
+
+/* Chart.js Tooltip 样式 */
+.chartjs-tooltip {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-radius: 4px;
+    padding: 8px !important;
+}
+
+.chartjs-tooltip-key {
+    display: inline-block !important;
+    width: 40px !important;
+    height: 1px !important;
+    margin-right: 8px !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+.chartjs-tooltip-key::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: currentColor;
+    border-radius: 0 !important;
 } 

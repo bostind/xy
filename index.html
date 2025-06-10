@@ -75,6 +75,9 @@
         <div class="chart-container">
             <canvas id="bloodPressureChart"></canvas>
         </div>
+        <div class="chart-container">
+            <canvas id="pulseChart"></canvas>
+        </div>
         
         <div class="table-container">
             <table>
@@ -101,10 +104,10 @@
     <script>
         // 确保插件在初始化之前加载
         window.addEventListener('load', function() {
-            if (typeof window['chartjs-plugin-annotation'] !== 'undefined') {
+            if (typeof Chart !== 'undefined' && typeof window['chartjs-plugin-annotation'] !== 'undefined') {
                 Chart.register(window['chartjs-plugin-annotation']);
             } else {
-                console.error('Chart.js annotation plugin not loaded');
+                console.error('Chart.js or annotation plugin not loaded');
             }
         });
     </script>

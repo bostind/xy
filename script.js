@@ -1,5 +1,6 @@
 // 全局变量
-let chart = null;
+let bloodPressureChart = null;
+let pulseChart = null;
 let pressureSettings = {
     highPressureMax: 140,
     highPressureMin: 90,
@@ -243,11 +244,15 @@ function updateTable(data) {
 
 // 创建图表
 function createChart(data) {
-    const ctx = document.getElementById('bloodPressureChart').getContext('2d');
+    const bloodPressureCtx = document.getElementById('bloodPressureChart').getContext('2d');
+    const pulseCtx = document.getElementById('pulseChart').getContext('2d');
     
     // 如果已存在图表，先销毁
-    if (chart) {
-        chart.destroy();
+    if (bloodPressureChart) {
+        bloodPressureChart.destroy();
+    }
+    if (pulseChart) {
+        pulseChart.destroy();
     }
     
     // 计算Y轴范围
@@ -265,6 +270,7 @@ function createChart(data) {
     // 计算平均值
     const highPressureAvg = Math.round(highPressureValues.reduce((a, b) => a + b, 0) / highPressureValues.length);
     const lowPressureAvg = Math.round(lowPressureValues.reduce((a, b) => a + b, 0) / lowPressureValues.length);
+    const pulseAvg = Math.round(pulseValues.reduce((a, b) => a + b, 0) / pulseValues.length);
     
     // 设置Y轴范围，留出10%的边距
     const highPressureRange = {
@@ -281,9 +287,10 @@ function createChart(data) {
         min: Math.floor(pulseMin * 0.9),
         max: Math.ceil(pulseMax * 1.1)
     };
-    
-    // 创建图表
-    chart = new Chart(ctx, {
+
+    // 创建血压图表
+    bloodPressureChart = new Chart(bloodPressureCtx, {
+        id: 'bloodPressureChart',
         type: 'line',
         data: {
             labels: data.map(entry => {
@@ -295,50 +302,61 @@ function createChart(data) {
                     label: '高压',
                     data: data.map(entry => entry.highPressure),
                     borderColor: 'rgb(255, 99, 132)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                    tension: 0.1,
-                    pointBackgroundColor: data.map(entry => 
-                        entry.highPressure > pressureSettings.highPressureMax ? 'rgb(255, 0, 0)' : 'rgba(255, 99, 132, 0.5)'
-                    ),
-                    pointRadius: data.map(entry => 
-                        entry.highPressure > pressureSettings.highPressureMax ? 3.8 : 3
-                    ),
-                    pointHoverRadius: data.map(entry => 
-                        entry.highPressure > pressureSettings.highPressureMax ? 5.0 : 3.9
-                    ),
-                    yAxisID: 'y'
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderWidth: 2,
+                    pointRadius: window.pointRadius || 3,
+                    pointStyle: 'circle',
+                    pointBackgroundColor: 'rgb(255, 99, 132)',
+                    pointBorderColor: 'rgb(255, 99, 132)',
+                    pointHoverRadius: window.pointHoverRadius || 3.6,
+                    pointHoverBackgroundColor: 'rgb(255, 99, 132)',
+                    pointHoverBorderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
+                },
+                {
+                    label: '高压平均值',
+                    data: Array(data.length).fill(highPressureAvg),
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderWidth: 1,
+                    pointRadius: 0,
+                    pointStyle: 'circle',
+                    pointBackgroundColor: 'rgb(255, 99, 132)',
+                    pointBorderColor: 'rgb(255, 99, 132)',
+                    pointHoverRadius: 0,
+                    pointHoverBackgroundColor: 'rgb(255, 99, 132)',
+                    pointHoverBorderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
                 },
                 {
                     label: '低压',
                     data: data.map(entry => entry.lowPressure),
-                    borderColor: data.map(entry => 
-                        entry.lowPressure > pressureSettings.lowPressureMax ? 'rgb(252, 117, 7)' : 'rgba(54, 162, 235, 0.5)'
-                    ),
-                    backgroundColor: data.map(entry => 
-                        entry.lowPressure > pressureSettings.lowPressureMax ? 'rgb(252, 117, 7)' : 'rgba(54, 162, 235, 0.5)'
-                    ),
-                    tension: 0.1,
-                    pointBackgroundColor: data.map(entry => 
-                        entry.lowPressure > pressureSettings.lowPressureMax ? 'rgb(252, 117, 7)' : 'rgba(54, 162, 235, 0.5)'
-                    ),
-                    pointRadius: data.map(entry => 
-                        entry.lowPressure > pressureSettings.lowPressureMax ? 3.8 : 3
-                    ),
-                    pointHoverRadius: data.map(entry => 
-                        entry.lowPressure > pressureSettings.lowPressureMax ? 5.0 : 3.9
-                    ),
-                    yAxisID: 'y'
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgb(54, 162, 235)',
+                    borderWidth: 2,
+                    pointRadius: window.pointRadius || 3,
+                    pointStyle: 'circle',
+                    pointBackgroundColor: 'rgb(54, 162, 235)',
+                    pointBorderColor: 'rgb(54, 162, 235)',
+                    pointHoverRadius: window.pointHoverRadius || 3.6,
+                    pointHoverBackgroundColor: 'rgb(54, 162, 235)',
+                    pointHoverBorderColor: 'rgb(54, 162, 235)',
+                    tension: 0.1
                 },
                 {
-                    label: '脉搏',
-                    data: data.map(entry => entry.pulse),
-                    borderColor: 'rgba(75, 192, 192, 0.5)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                    tension: 0.1,
-                    pointBackgroundColor: 'rgba(75, 192, 192, 0.5)',
-                    pointRadius: 3,
-                    pointHoverRadius: 3.9,
-                    yAxisID: 'pulse'
+                    label: '低压平均值',
+                    data: Array(data.length).fill(lowPressureAvg),
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgb(54, 162, 235)',
+                    borderWidth: 1,
+                    pointRadius: 0,
+                    pointStyle: 'circle',
+                    pointBackgroundColor: 'rgb(54, 162, 235)',
+                    pointBorderColor: 'rgb(54, 162, 235)',
+                    pointHoverRadius: 0,
+                    pointHoverBackgroundColor: 'rgb(54, 162, 235)',
+                    pointHoverBorderColor: 'rgb(54, 162, 235)',
+                    tension: 0.1
                 }
             ]
         },
@@ -349,37 +367,78 @@ function createChart(data) {
                 mode: 'index',
                 intersect: false,
             },
+            
             scales: {
                 y: {
                     beginAtZero: false,
                     min: Math.floor(lowPressureRange.min),
                     max: Math.ceil(highPressureRange.max),
-                    position: 'left',
                     title: {
                         display: true,
                         text: '血压 (mmHg)'
-                    }
-                },
-                pulse: {
-                    beginAtZero: false,
-                    min: Math.floor(pulseRange.min),
-                    max: Math.ceil(pulseRange.max),
-                    position: 'right',
-                    title: {
-                        display: true,
-                        text: '脉搏 (次/分)'
-                    },
-                    grid: {
-                        drawOnChartArea: false
                     }
                 }
             },
             plugins: {
                 legend: {
+                    display: true,
+                    position: 'top',
+                    align: 'center',
+                    onClick: function(e, legendItem, legend) {
+                        const index = legendItem.index;
+                        const chart = legend.chart;
+                        const dataset = chart.data.datasets[index];
+                        
+                        // 切换数据集的显示状态
+                        dataset.hidden = !dataset.hidden;
+                        
+                        // 更新图表
+                        chart.update();
+                    },
                     labels: {
                         usePointStyle: true,
-                        boxWidth: 5,
-                        padding: 5
+                        pointStyle: 'line',
+                        pointStyleWidth: 40,
+                        pointStyleHeight: 1,
+                        boxWidth: 40,
+                        boxHeight: 1,
+                        padding: 20,
+                        color: 'rgb(0, 0, 0)',
+                        font: {
+                            size: 12
+                        },
+                        generateLabels: function(chart) {
+                            const datasets = chart.data.datasets;
+                            return datasets.map((dataset, i) => ({
+                                text: dataset.label,
+                                fillStyle: 'transparent',
+                                strokeStyle: dataset.borderColor,
+                                lineWidth: dataset.borderWidth,
+                                lineDash: dataset.borderDash || [],
+                                hidden: dataset.hidden,
+                                index: i,
+                                boxWidth: 40,
+                                boxHeight: 1,
+                                pointStyle: 'line',
+                                pointStyleWidth: 40,
+                                pointStyleHeight: 1,
+                                draw: function(ctx, item, x, y, w, h) {
+                                    const width = 40;
+                                    const height = 1;
+                                    const xPos = x + (w - width) / 2;
+                                    const yPos = y + (h - height) / 2;
+                                    
+                                    ctx.save();
+                                    ctx.strokeStyle = item.strokeStyle;
+                                    ctx.lineWidth = item.lineWidth;
+                                    ctx.beginPath();
+                                    ctx.moveTo(xPos, yPos);
+                                    ctx.lineTo(xPos + width, yPos);
+                                    ctx.stroke();
+                                    ctx.restore();
+                                }
+                            }));
+                        }
                     }
                 },
                 tooltip: {
@@ -394,18 +453,31 @@ function createChart(data) {
                                 label += ': ';
                             }
                             if (context.parsed.y !== null) {
-                                label += context.parsed.y;
-                                if (context.dataset.yAxisID === 'pulse') {
-                                    label += ' 次/分';
-                                } else {
-                                    label += ' mmHg';
-                                }
+                                label += context.parsed.y + ' mmHg';
                             }
                             return label;
+                        },
+                        labelColor: function(context) {
+                            return {
+                                borderColor: context.dataset.borderColor,
+                                backgroundColor: 'transparent',
+                                borderWidth: 2,
+                                borderDash: [],
+                                width: 40,
+                                height: 1
+                            };
                         }
-                    }
+                    },
+                    displayColors: true,
+                    usePointStyle: false,
+                    boxWidth: 20,
+                    boxHeight: 1,
+                    boxPadding: 0
                 },
                 annotation: {
+                    common: {
+                        drawTime: 'afterDatasetsDraw'
+                    },
                     annotations: {
                         highPressureMax: {
                             type: 'line',
@@ -477,7 +549,8 @@ function createChart(data) {
                             label: {
                                 content: `高压平均值 ${highPressureAvg}mmHg`,
                                 enabled: true,
-                                position: 'start',
+                                position: 'end',
+                                xAdjust: 10,
                                 backgroundColor: 'rgba(255, 99, 132, 0.1)',
                                 color: 'rgb(255, 99, 132)'
                             }
@@ -492,9 +565,192 @@ function createChart(data) {
                             label: {
                                 content: `低压平均值 ${lowPressureAvg}mmHg`,
                                 enabled: true,
-                                position: 'start',
+                                position: 'end',
+                                xAdjust: 10,
                                 backgroundColor: 'rgba(54, 162, 235, 0.1)',
                                 color: 'rgb(54, 162, 235)'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 创建脉搏图表
+    pulseChart = new Chart(pulseCtx, {
+        id: 'pulseChart',
+        type: 'line',
+        data: {
+            labels: data.map(entry => {
+                const date = new Date(entry.date);
+                return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+            }),
+            datasets: [
+                {
+                    label: '脉搏',
+                    data: data.map(entry => entry.pulse),
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgb(75, 192, 192)',
+                    borderWidth: 2,
+                    pointRadius: window.pointRadius || 3,
+                    pointStyle: 'circle',
+                    pointBackgroundColor: 'rgb(75, 192, 192)',
+                    pointBorderColor: 'rgb(75, 192, 192)',
+                    pointHoverRadius: window.pointHoverRadius || 3.6,
+                    pointHoverBackgroundColor: 'rgb(75, 192, 192)',
+                    pointHoverBorderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                },
+                {
+                    label: '脉搏平均值',
+                    data: Array(data.length).fill(pulseAvg),
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgb(75, 192, 192)',
+                    borderWidth: 1,
+                    pointRadius: 0,
+                    pointStyle: 'circle',
+                    pointBackgroundColor: 'rgb(75, 192, 192)',
+                    pointBorderColor: 'rgb(75, 192, 192)',
+                    pointHoverRadius: 0,
+                    pointHoverBackgroundColor: 'rgb(75, 192, 192)',
+                    pointHoverBorderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: Math.floor(pulseRange.min),
+                    max: Math.ceil(pulseRange.max),
+                    title: {
+                        display: true,
+                        text: '脉搏 (次/分)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    align: 'center',
+                    onClick: function(e, legendItem, legend) {
+                        const index = legendItem.index;
+                        const chart = legend.chart;
+                        const dataset = chart.data.datasets[index];
+                        
+                        // 切换数据集的显示状态
+                        dataset.hidden = !dataset.hidden;
+                        
+                        // 更新图表
+                        chart.update();
+                    },
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: 'line',
+                        pointStyleWidth: 40,
+                        pointStyleHeight: 1,
+                        boxWidth: 40,
+                        boxHeight: 1,
+                        padding: 20,
+                        color: 'rgb(0, 0, 0)',
+                        font: {
+                            size: 12
+                        },
+                        generateLabels: function(chart) {
+                            const datasets = chart.data.datasets;
+                            return datasets.map((dataset, i) => ({
+                                text: dataset.label,
+                                fillStyle: 'transparent',
+                                strokeStyle: dataset.borderColor,
+                                lineWidth: dataset.borderWidth,
+                                lineDash: dataset.borderDash || [],
+                                hidden: dataset.hidden,
+                                index: i,
+                                boxWidth: 40,
+                                boxHeight: 1,
+                                pointStyle: 'line',
+                                pointStyleWidth: 40,
+                                pointStyleHeight: 1,
+                                draw: function(ctx, item, x, y, w, h) {
+                                    const width = 40;
+                                    const height = 1;
+                                    const xPos = x + (w - width) / 2;
+                                    const yPos = y + (h - height) / 2;
+                                    
+                                    ctx.save();
+                                    ctx.strokeStyle = item.strokeStyle;
+                                    ctx.lineWidth = item.lineWidth;
+                                    ctx.beginPath();
+                                    ctx.moveTo(xPos, yPos);
+                                    ctx.lineTo(xPos + width, yPos);
+                                    ctx.stroke();
+                                    ctx.restore();
+                                }
+                            }));
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            const date = new Date(data[context[0].dataIndex].date);
+                            return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                        },
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' mmHg';
+                            }
+                            return label;
+                        },
+                        labelColor: function(context) {
+                            return {
+                                borderColor: context.dataset.borderColor,
+                                backgroundColor: 'transparent',
+                                borderWidth: 2,
+                                borderDash: [],
+                                width: 40,
+                                height: 1
+                            };
+                        }
+                    },
+                    displayColors: true,
+                    usePointStyle: false,
+                    boxWidth: 20,
+                    boxHeight: 1,
+                    boxPadding: 0
+                },
+                annotation: {
+                    common: {
+                        drawTime: 'afterDatasetsDraw'
+                    },
+                    annotations: {
+                        pulseAvg: {
+                            type: 'line',
+                            yMin: pulseAvg,
+                            yMax: pulseAvg,
+                            borderColor: 'rgb(75, 192, 192)',
+                            borderWidth: 2,
+                            borderDash: [],
+                            label: {
+                                content: `脉搏平均值 ${pulseAvg}次/分`,
+                                enabled: true,
+                                position: 'end',
+                                xAdjust: 10,
+                                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                                color: 'rgb(75, 192, 192)'
                             }
                         }
                     }
@@ -527,3 +783,46 @@ function applySettings() {
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', init); 
+
+window.pointRadius = 2.8;  // 设置数据点大小为4
+window.pointHoverRadius = 3.6;  // 设置悬停时数据点大小为5
+bloodPressureChart.update();  // 更新图表
+pulseChart.update();  // 更新图表 
+
+// 更新图表
+function updateCharts() {
+    if (bloodPressureChart) {
+        bloodPressureChart.destroy();
+    }
+    if (pulseChart) {
+        pulseChart.destroy();
+    }
+    
+    // 重新创建图表
+    createCharts();
+}
+
+// 应用设置按钮点击事件
+document.getElementById('applySettings').addEventListener('click', function() {
+    // 更新设置
+    pressureSettings.highPressureMin = parseInt(document.getElementById('highPressureMin').value);
+    pressureSettings.highPressureMax = parseInt(document.getElementById('highPressureMax').value);
+    pressureSettings.lowPressureMin = parseInt(document.getElementById('lowPressureMin').value);
+    pressureSettings.lowPressureMax = parseInt(document.getElementById('lowPressureMax').value);
+    
+    // 更新图表
+    updateCharts();
+});
+
+// 创建图表
+function createCharts() {
+    // 创建血压图表
+    bloodPressureChart = new Chart(bloodPressureCtx, {
+        // ... 图表配置 ...
+    });
+
+    // 创建脉搏图表
+    pulseChart = new Chart(pulseCtx, {
+        // ... 图表配置 ...
+    });
+} 
