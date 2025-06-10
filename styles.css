@@ -321,4 +321,17 @@ tr:hover {
     font-size: 14px;
     color: #666;
     margin-top: 8px;
+}
+
+.info-icon {
+    display: inline;
+    margin-left: 2px;
+    cursor: help;
+    color: #666;
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+.info-icon:hover {
+    opacity: 0.8;
 } 

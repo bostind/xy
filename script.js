@@ -7,6 +7,49 @@ let pressureSettings = {
     lowPressureMin: 60
 };
 
+// 预处理数据：5分钟间隔取平均值
+function preprocessData(data) {
+    // 按5分钟间隔分组
+    const groups = new Map();
+    
+    data.forEach(entry => {
+        // 将时间向下取整到最近的5分钟
+        const time = new Date(entry.date);
+        const minutes = time.getMinutes();
+        const roundedMinutes = Math.floor(minutes / 5) * 5;
+        const roundedTime = new Date(time);
+        roundedTime.setMinutes(roundedMinutes, 0, 0);
+        const timeKey = roundedTime.getTime();
+        
+        if (!groups.has(timeKey)) {
+            groups.set(timeKey, {
+                date: roundedTime,
+                highPressure: [],
+                lowPressure: [],
+                pulse: []
+            });
+        }
+        
+        const group = groups.get(timeKey);
+        group.highPressure.push(entry.highPressure);
+        group.lowPressure.push(entry.lowPressure);
+        group.pulse.push(entry.pulse);
+    });
+    
+    // 计算每组的平均值
+    const processedData = Array.from(groups.values()).map(group => ({
+        date: group.date,
+        highPressure: Math.round(group.highPressure.reduce((a, b) => a + b, 0) / group.highPressure.length),
+        lowPressure: Math.round(group.lowPressure.reduce((a, b) => a + b, 0) / group.lowPressure.length),
+        pulse: Math.round(group.pulse.reduce((a, b) => a + b, 0) / group.pulse.length)
+    }));
+    
+    return {
+        originalCount: data.length,
+        processedData: processedData.sort((a, b) => a.date - b.date)
+    };
+}
+
 // 初始化
 async function init() {
     // 添加文件上传事件监听
@@ -22,11 +65,12 @@ async function init() {
             }
             
             fileInfo.textContent = `已选择: ${file.name}`;
-            const data = await loadDataFromFile(file);
-            if (data.length > 0) {
-                updateStats(data);
-                updateTable(data);
-                createChart(data);
+            const rawData = await loadDataFromFile(file);
+            if (rawData.length > 0) {
+                const { originalCount, processedData } = preprocessData(rawData);
+                updateStats(processedData, originalCount);
+                updateTable(processedData);
+                createChart(processedData);
             } else {
                 fileInfo.textContent = '文件格式错误或为空';
             }
@@ -100,7 +144,7 @@ function calculateAbnormalStats(data) {
 }
 
 // 更新统计信息显示
-function updateStats(data) {
+function updateStats(data, originalCount) {
     const highPressureStats = calculateStats(data, 'highPressure');
     const lowPressureStats = calculateStats(data, 'lowPressure');
     const pulseStats = calculateStats(data, 'pulse');
@@ -109,8 +153,12 @@ function updateStats(data) {
     // 更新测量统计
     document.getElementById('measurementStats').innerHTML = `
         <p>
-            <span class="label">总测量次数</span>
-            <span class="value">${abnormalStats.total} 次</span>
+            <span class="label">原始数据点数</span>
+            <span class="value">${originalCount} 次</span>
+        </p>
+        <p>
+            <span class="label">处理后数据点数<span class="info-icon" title="间隔5分钟的多条数据取平均值">?</span></span>
+            <span class="value">${data.length} 次</span>
         </p>
         <p>
             <span class="label">高压异常次数</span>
@@ -376,11 +424,12 @@ function applySettings() {
     // 重新加载数据并更新显示
     const fileInput = document.getElementById('csvFile');
     if (fileInput.files.length > 0) {
-        loadDataFromFile(fileInput.files[0]).then(data => {
-            if (data.length > 0) {
-                updateStats(data);
-                updateTable(data);
-                createChart(data);
+        loadDataFromFile(fileInput.files[0]).then(rawData => {
+            if (rawData.length > 0) {
+                const { originalCount, processedData } = preprocessData(rawData);
+                updateStats(processedData, originalCount);
+                updateTable(processedData);
+                createChart(processedData);
             }
         });
     }
