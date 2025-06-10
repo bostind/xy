@@ -1,6 +1,39 @@
 // 全局变量
 let bloodPressureChart = null;
 let pulseChart = null;
+
+// 颜色配置
+const colorConfig = {
+    // 高压相关颜色
+    highPressure: {
+        main: 'rgb(255, 159, 159)',      // 柔和的红色
+        avg: 'rgb(255, 183, 77)',        // 柔和的橙色
+        limit: 'rgb(255, 107, 107)',     // 柔和的警示红
+        limitBg: 'rgba(255, 107, 107, 0.1)', // 柔和的警示红背景
+        bg: 'rgba(255, 159, 159, 0.1)'   // 柔和的红色背景
+    },
+    // 低压相关颜色
+    lowPressure: {
+        main: 'rgb(77, 171, 247)',       // 柔和的蓝色
+        avg: 'rgb(131, 194, 246)',        // 柔和的蓝色
+        limit: 'rgb(255, 149, 0)',       // 柔和的橙色
+        limitBg: 'rgba(255, 149, 0, 0.1)', // 柔和的橙色背景
+        bg: 'rgba(77, 171, 247, 0.1)'    // 柔和的蓝色背景
+    },
+    // 脉搏相关颜色
+    pulse: {
+        main: 'rgb(129, 199, 132)',      // 柔和的绿色
+        avg: 'rgb(179, 242, 182)',       // 柔和的绿色
+        bg: 'rgba(129, 199, 132, 0.1)'   // 柔和的绿色背景
+    },
+    // 通用颜色
+    common: {
+        grid: 'rgba(0, 0, 0, 0.05)',     // 更淡的网格线
+        text: 'rgb(97, 97, 97)',         // 柔和的深灰色
+        error: 'rgb(244, 67, 54)'        // 柔和的错误红
+    }
+};
+
 let pressureSettings = {
     highPressureMax: 140,
     highPressureMin: 90,
@@ -301,61 +334,61 @@ function createChart(data) {
                 {
                     label: '高压',
                     data: data.map(entry => entry.highPressure),
-                    borderColor: 'rgb(255, 99, 132)',
-                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: colorConfig.highPressure.main,
+                    backgroundColor: colorConfig.highPressure.bg,
                     borderWidth: 2,
                     pointRadius: window.pointRadius || 3,
                     pointStyle: 'circle',
-                    pointBackgroundColor: 'rgb(255, 99, 132)',
-                    pointBorderColor: 'rgb(255, 99, 132)',
+                    pointBackgroundColor: colorConfig.highPressure.main,
+                    pointBorderColor: colorConfig.highPressure.main,
                     pointHoverRadius: window.pointHoverRadius || 3.6,
-                    pointHoverBackgroundColor: 'rgb(255, 99, 132)',
-                    pointHoverBorderColor: 'rgb(255, 99, 132)',
+                    pointHoverBackgroundColor: colorConfig.highPressure.main,
+                    pointHoverBorderColor: colorConfig.highPressure.main,
                     tension: 0.1
                 },
                 {
                     label: '高压平均值',
                     data: Array(data.length).fill(highPressureAvg),
-                    borderColor: 'rgb(255, 99, 132)',
-                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: colorConfig.highPressure.avg,
+                    backgroundColor: colorConfig.highPressure.bg,
                     borderWidth: 1,
                     pointRadius: 0,
                     pointStyle: 'circle',
-                    pointBackgroundColor: 'rgb(255, 99, 132)',
-                    pointBorderColor: 'rgb(255, 99, 132)',
+                    pointBackgroundColor: colorConfig.highPressure.avg,
+                    pointBorderColor: colorConfig.highPressure.avg,
                     pointHoverRadius: 0,
-                    pointHoverBackgroundColor: 'rgb(255, 99, 132)',
-                    pointHoverBorderColor: 'rgb(255, 99, 132)',
+                    pointHoverBackgroundColor: colorConfig.highPressure.bg,
+                    pointHoverBorderColor: colorConfig.highPressure.avg,
                     tension: 0.1
                 },
                 {
                     label: '低压',
                     data: data.map(entry => entry.lowPressure),
-                    borderColor: 'rgb(54, 162, 235)',
-                    backgroundColor: 'rgb(54, 162, 235)',
+                    borderColor: colorConfig.lowPressure.main,
+                    backgroundColor: colorConfig.lowPressure.bg,
                     borderWidth: 2,
                     pointRadius: window.pointRadius || 3,
                     pointStyle: 'circle',
-                    pointBackgroundColor: 'rgb(54, 162, 235)',
-                    pointBorderColor: 'rgb(54, 162, 235)',
+                    pointBackgroundColor: colorConfig.lowPressure.main,
+                    pointBorderColor: colorConfig.lowPressure.main,
                     pointHoverRadius: window.pointHoverRadius || 3.6,
-                    pointHoverBackgroundColor: 'rgb(54, 162, 235)',
-                    pointHoverBorderColor: 'rgb(54, 162, 235)',
+                    pointHoverBackgroundColor: colorConfig.lowPressure.main,
+                    pointHoverBorderColor: colorConfig.lowPressure.main,
                     tension: 0.1
                 },
                 {
                     label: '低压平均值',
                     data: Array(data.length).fill(lowPressureAvg),
-                    borderColor: 'rgb(54, 162, 235)',
-                    backgroundColor: 'rgb(54, 162, 235)',
+                    borderColor: colorConfig.lowPressure.avg,
+                    backgroundColor: colorConfig.lowPressure.bg,
                     borderWidth: 1,
                     pointRadius: 0,
                     pointStyle: 'circle',
-                    pointBackgroundColor: 'rgb(54, 162, 235)',
-                    pointBorderColor: 'rgb(54, 162, 235)',
+                    pointBackgroundColor: colorConfig.lowPressure.avg,
+                    pointBorderColor: colorConfig.lowPressure.avg,
                     pointHoverRadius: 0,
-                    pointHoverBackgroundColor: 'rgb(54, 162, 235)',
-                    pointHoverBorderColor: 'rgb(54, 162, 235)',
+                    pointHoverBackgroundColor: colorConfig.lowPressure.bg,
+                    pointHoverBorderColor: colorConfig.lowPressure.avg,
                     tension: 0.1
                 }
             ]
@@ -379,7 +412,7 @@ function createChart(data) {
                     },
                     grid: {
                         display: true,
-                        color: 'rgba(0, 0, 0, 0.1)',
+                        color: colorConfig.common.grid,
                         drawBorder: true,
                         drawOnChartArea: true,
                         drawTicks: true
@@ -434,7 +467,7 @@ function createChart(data) {
                         boxWidth: 40,
                         boxHeight: 1,
                         padding: 20,
-                        color: 'rgb(0, 0, 0)',
+                        color: colorConfig.common.text,
                         font: {
                             size: 12
                         },
@@ -514,67 +547,67 @@ function createChart(data) {
                             type: 'line',
                             yMin: pressureSettings.highPressureMax,
                             yMax: pressureSettings.highPressureMax,
-                            borderColor: 'rgb(255, 0, 0)',
+                            borderColor: colorConfig.highPressure.limit,
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
                                 content: `高压上限 ${pressureSettings.highPressureMax}mmHg`,
                                 enabled: true,
                                 position: 'start',
-                                backgroundColor: 'rgba(255, 0, 0, 0.1)',
-                                color: 'rgb(255, 0, 0)'
+                                backgroundColor: colorConfig.highPressure.limitBg,
+                                color: colorConfig.highPressure.limit
                             }
                         },
                         highPressureMin: {
                             type: 'line',
                             yMin: pressureSettings.highPressureMin,
                             yMax: pressureSettings.highPressureMin,
-                            borderColor: 'rgb(255, 0, 0)',
+                            borderColor: colorConfig.highPressure.limit,
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
                                 content: `高压下限 ${pressureSettings.highPressureMin}mmHg`,
                                 enabled: true,
                                 position: 'start',
-                                backgroundColor: 'rgba(255, 0, 0, 0.1)',
-                                color: 'rgb(255, 0, 0)'
+                                backgroundColor: colorConfig.highPressure.limitBg,
+                                color: colorConfig.highPressure.limit
                             }
                         },
                         lowPressureMax: {
                             type: 'line',
                             yMin: pressureSettings.lowPressureMax,
                             yMax: pressureSettings.lowPressureMax,
-                            borderColor: 'rgb(252, 117, 7)',
+                            borderColor: colorConfig.lowPressure.limit,
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
                                 content: `低压上限 ${pressureSettings.lowPressureMax}mmHg`,
                                 enabled: true,
                                 position: 'start',
-                                backgroundColor: 'rgba(252, 117, 7, 0.1)',
-                                color: 'rgb(252, 117, 7)'
+                                backgroundColor: colorConfig.lowPressure.limitBg,
+                                color: colorConfig.lowPressure.limit
                             }
                         },
                         lowPressureMin: {
                             type: 'line',
                             yMin: pressureSettings.lowPressureMin,
                             yMax: pressureSettings.lowPressureMin,
-                            borderColor: 'rgb(252, 117, 7)',
+                            borderColor: colorConfig.lowPressure.limit,
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
                                 content: `低压下限 ${pressureSettings.lowPressureMin}mmHg`,
                                 enabled: true,
                                 position: 'start',
-                                backgroundColor: 'rgba(252, 117, 7, 0.1)',
-                                color: 'rgb(252, 117, 7)'
+                                backgroundColor: colorConfig.lowPressure.limitBg,
+                                color: colorConfig.lowPressure.limit
                             }
                         },
                         highPressureAvg: {
                             type: 'line',
                             yMin: highPressureAvg,
                             yMax: highPressureAvg,
-                            borderColor: 'rgb(255, 99, 132)',
+                            borderColor: colorConfig.highPressure.avg,
                             borderWidth: 2,
                             borderDash: [],
                             yScaleID: 'y1',
@@ -582,8 +615,8 @@ function createChart(data) {
                                 content: `高压平均值 ${highPressureAvg}mmHg`,
                                 enabled: true,
                                 position: 'right',
-                                backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                                color: 'rgb(255, 99, 132)',
+                                backgroundColor: colorConfig.highPressure.bg,
+                                color: colorConfig.highPressure.avg,
                                 xAdjust: 5,
                                 yAdjust: -15,
                                 padding: 4,
@@ -596,7 +629,7 @@ function createChart(data) {
                             type: 'line',
                             yMin: lowPressureAvg,
                             yMax: lowPressureAvg,
-                            borderColor: 'rgb(54, 162, 235)',
+                            borderColor: colorConfig.lowPressure.avg,
                             borderWidth: 2,
                             borderDash: [],
                             yScaleID: 'y1',
@@ -604,8 +637,8 @@ function createChart(data) {
                                 content: `低压平均值 ${lowPressureAvg}mmHg`,
                                 enabled: true,
                                 position: 'right',
-                                backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                                color: 'rgb(54, 162, 235)',
+                                backgroundColor: colorConfig.lowPressure.bg,
+                                color: colorConfig.lowPressure.avg,
                                 xAdjust: 5,
                                 yAdjust: 15,
                                 padding: 4,
@@ -633,31 +666,31 @@ function createChart(data) {
                 {
                     label: '脉搏',
                     data: data.map(entry => entry.pulse),
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgb(75, 192, 192)',
+                    borderColor: colorConfig.pulse.main,
+                    backgroundColor: colorConfig.pulse.bg,
                     borderWidth: 2,
                     pointRadius: window.pointRadius || 3,
                     pointStyle: 'circle',
-                    pointBackgroundColor: 'rgb(75, 192, 192)',
-                    pointBorderColor: 'rgb(75, 192, 192)',
+                    pointBackgroundColor: colorConfig.pulse.main,
+                    pointBorderColor: colorConfig.pulse.main,
                     pointHoverRadius: window.pointHoverRadius || 3.6,
-                    pointHoverBackgroundColor: 'rgb(75, 192, 192)',
-                    pointHoverBorderColor: 'rgb(75, 192, 192)',
+                    pointHoverBackgroundColor: colorConfig.pulse.main,
+                    pointHoverBorderColor: colorConfig.pulse.main,
                     tension: 0.1
                 },
                 {
                     label: '脉搏平均值',
                     data: Array(data.length).fill(pulseAvg),
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgb(75, 192, 192)',
+                    borderColor: colorConfig.pulse.avg,
+                    backgroundColor: colorConfig.pulse.bg,
                     borderWidth: 1,
                     pointRadius: 0,
                     pointStyle: 'circle',
-                    pointBackgroundColor: 'rgb(75, 192, 192)',
-                    pointBorderColor: 'rgb(75, 192, 192)',
+                    pointBackgroundColor: colorConfig.pulse.avg,
+                    pointBorderColor: colorConfig.pulse.avg,
                     pointHoverRadius: 0,
-                    pointHoverBackgroundColor: 'rgb(75, 192, 192)',
-                    pointHoverBorderColor: 'rgb(75, 192, 192)',
+                    pointHoverBackgroundColor: colorConfig.pulse.bg,
+                    pointHoverBorderColor: colorConfig.pulse.avg,
                     tension: 0.1
                 }
             ]
@@ -680,7 +713,7 @@ function createChart(data) {
                     },
                     grid: {
                         display: true,
-                        color: 'rgba(0, 0, 0, 0.1)',
+                        color: colorConfig.common.grid,
                         drawBorder: true,
                         drawOnChartArea: true,
                         drawTicks: true
@@ -735,7 +768,7 @@ function createChart(data) {
                         boxWidth: 40,
                         boxHeight: 1,
                         padding: 20,
-                        color: 'rgb(0, 0, 0)',
+                        color: colorConfig.common.text,
                         font: {
                             size: 12
                         },
@@ -815,7 +848,7 @@ function createChart(data) {
                             type: 'line',
                             yMin: pulseAvg,
                             yMax: pulseAvg,
-                            borderColor: 'rgb(75, 192, 192)',
+                            borderColor: colorConfig.pulse.avg,
                             borderWidth: 2,
                             borderDash: [],
                             yScaleID: 'y1',
@@ -823,8 +856,8 @@ function createChart(data) {
                                 content: `脉搏平均值 ${pulseAvg}次/分`,
                                 enabled: true,
                                 position: 'right',
-                                backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                                color: 'rgb(75, 192, 192)',
+                                backgroundColor: colorConfig.pulse.bg,
+                                color: colorConfig.pulse.avg,
                                 xAdjust: 5,
                                 yAdjust: 0,
                                 padding: 4,
@@ -925,7 +958,7 @@ function createCharts() {
                     },
                     grid: {
                         display: true,
-                        color: 'rgba(0, 0, 0, 0.1)',
+                        color: colorConfig.common.grid,
                         drawBorder: true,
                         drawOnChartArea: true,
                         drawTicks: true
@@ -956,67 +989,67 @@ function createCharts() {
                             type: 'line',
                             yMin: pressureSettings.highPressureMax,
                             yMax: pressureSettings.highPressureMax,
-                            borderColor: 'rgb(255, 0, 0)',
+                            borderColor: colorConfig.highPressure.limit,
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
                                 content: `高压上限 ${pressureSettings.highPressureMax}mmHg`,
                                 enabled: true,
                                 position: 'start',
-                                backgroundColor: 'rgba(255, 0, 0, 0.1)',
-                                color: 'rgb(255, 0, 0)'
+                                backgroundColor: colorConfig.highPressure.limitBg,
+                                color: colorConfig.highPressure.limit
                             }
                         },
                         highPressureMin: {
                             type: 'line',
                             yMin: pressureSettings.highPressureMin,
                             yMax: pressureSettings.highPressureMin,
-                            borderColor: 'rgb(255, 0, 0)',
+                            borderColor: colorConfig.highPressure.limit,
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
                                 content: `高压下限 ${pressureSettings.highPressureMin}mmHg`,
                                 enabled: true,
                                 position: 'start',
-                                backgroundColor: 'rgba(255, 0, 0, 0.1)',
-                                color: 'rgb(255, 0, 0)'
+                                backgroundColor: colorConfig.highPressure.limitBg,
+                                color: colorConfig.highPressure.limit
                             }
                         },
                         lowPressureMax: {
                             type: 'line',
                             yMin: pressureSettings.lowPressureMax,
                             yMax: pressureSettings.lowPressureMax,
-                            borderColor: 'rgb(252, 117, 7)',
+                            borderColor: colorConfig.lowPressure.limit,
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
                                 content: `低压上限 ${pressureSettings.lowPressureMax}mmHg`,
                                 enabled: true,
                                 position: 'start',
-                                backgroundColor: 'rgba(252, 117, 7, 0.1)',
-                                color: 'rgb(252, 117, 7)'
+                                backgroundColor: colorConfig.lowPressure.limitBg,
+                                color: colorConfig.lowPressure.limit
                             }
                         },
                         lowPressureMin: {
                             type: 'line',
                             yMin: pressureSettings.lowPressureMin,
                             yMax: pressureSettings.lowPressureMin,
-                            borderColor: 'rgb(252, 117, 7)',
+                            borderColor: colorConfig.lowPressure.limit,
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
                                 content: `低压下限 ${pressureSettings.lowPressureMin}mmHg`,
                                 enabled: true,
                                 position: 'start',
-                                backgroundColor: 'rgba(252, 117, 7, 0.1)',
-                                color: 'rgb(252, 117, 7)'
+                                backgroundColor: colorConfig.lowPressure.limitBg,
+                                color: colorConfig.lowPressure.limit
                             }
                         },
                         highPressureAvg: {
                             type: 'line',
                             yMin: highPressureAvg,
                             yMax: highPressureAvg,
-                            borderColor: 'rgb(255, 99, 132)',
+                            borderColor: colorConfig.highPressure.avg,
                             borderWidth: 2,
                             borderDash: [],
                             yScaleID: 'y1',
@@ -1024,8 +1057,8 @@ function createCharts() {
                                 content: `高压平均值 ${highPressureAvg}mmHg`,
                                 enabled: true,
                                 position: 'right',
-                                backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                                color: 'rgb(255, 99, 132)',
+                                backgroundColor: colorConfig.highPressure.bg,
+                                color: colorConfig.highPressure.avg,
                                 xAdjust: 5,
                                 yAdjust: -15,
                                 padding: 4,
@@ -1038,7 +1071,7 @@ function createCharts() {
                             type: 'line',
                             yMin: lowPressureAvg,
                             yMax: lowPressureAvg,
-                            borderColor: 'rgb(54, 162, 235)',
+                            borderColor: colorConfig.lowPressure.avg,
                             borderWidth: 2,
                             borderDash: [],
                             yScaleID: 'y1',
@@ -1046,8 +1079,8 @@ function createCharts() {
                                 content: `低压平均值 ${lowPressureAvg}mmHg`,
                                 enabled: true,
                                 position: 'right',
-                                backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                                color: 'rgb(54, 162, 235)',
+                                backgroundColor: colorConfig.lowPressure.bg,
+                                color: colorConfig.lowPressure.avg,
                                 xAdjust: 5,
                                 yAdjust: 15,
                                 padding: 4,
@@ -1086,7 +1119,7 @@ function createCharts() {
                     },
                     grid: {
                         display: true,
-                        color: 'rgba(0, 0, 0, 0.1)',
+                        color: colorConfig.common.grid,
                         drawBorder: true,
                         drawOnChartArea: true,
                         drawTicks: true
@@ -1133,7 +1166,7 @@ function createCharts() {
                             type: 'line',
                             yMin: pulseAvg,
                             yMax: pulseAvg,
-                            borderColor: 'rgb(75, 192, 192)',
+                            borderColor: colorConfig.pulse.avg,
                             borderWidth: 2,
                             borderDash: [],
                             yScaleID: 'y1',
@@ -1141,8 +1174,8 @@ function createCharts() {
                                 content: `脉搏平均值 ${pulseAvg}次/分`,
                                 enabled: true,
                                 position: 'right',
-                                backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                                color: 'rgb(75, 192, 192)',
+                                backgroundColor: colorConfig.pulse.bg,
+                                color: colorConfig.pulse.avg,
                                 xAdjust: 5,
                                 yAdjust: 0,
                                 padding: 4,
