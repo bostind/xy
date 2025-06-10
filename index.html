@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>血压数据分析</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>血压数据分析</h1>
+        
+        <div class="upload-section">
+            <div class="upload-container">
+                <input type="file" id="csvFile" accept=".csv" class="file-input">
+                <label for="csvFile" class="file-label">
+                    <span class="upload-icon">📁</span>
+                    <span class="upload-text">选择血压记录文件</span>
+                </label>
+                <div id="fileInfo" class="file-info"></div>
+            </div>
+        </div>
+        
+        <div class="settings-panel">
+            <h3>血压范围设置</h3>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <label>高压范围：</label>
+                    <input type="number" id="highPressureMin" value="90" min="60" max="200">
+                    <span>-</span>
+                    <input type="number" id="highPressureMax" value="140" min="60" max="200">
+                    <span>mmHg</span>
+                </div>
+                <div class="setting-group">
+                    <label>低压范围：</label>
+                    <input type="number" id="lowPressureMin" value="60" min="40" max="120">
+                    <span>-</span>
+                    <input type="number" id="lowPressureMax" value="90" min="40" max="120">
+                    <span>mmHg</span>
+                </div>
+                <button id="applySettings" class="settings-button">应用设置</button>
+            </div>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stats-card">
+                <h3>测量统计</h3>
+                <div id="measurementStats" class="stats-content">
+                    <!-- 测量统计信息将在这里显示 -->
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <h3>高压统计</h3>
+                <div id="highPressureStats" class="stats-content">
+                    <!-- 高压统计信息将在这里显示 -->
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <h3>低压统计</h3>
+                <div id="lowPressureStats" class="stats-content">
+                    <!-- 低压统计信息将在这里显示 -->
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <h3>脉搏统计</h3>
+                <div id="pulseStats" class="stats-content">
+                    <!-- 脉搏统计信息将在这里显示 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="bloodPressureChart"></canvas>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>日期时间</th>
+                        <th>高压 (mmHg)</th>
+                        <th>低压 (mmHg)</th>
+                        <th>脉搏 (次/分)</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTable">
+                    <!-- 数据表格将在这里显示 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 首先加载 Chart.js -->
+    <script src="chart.js"></script>
+    <!-- 然后加载 annotation 插件 -->
+    <script src="chartjs-plugin-annotation.min.js"></script>
+    <!-- 注册插件 -->
+    <script>
+        // 确保插件在初始化之前加载
+        window.addEventListener('load', function() {
+            if (typeof window['chartjs-plugin-annotation'] !== 'undefined') {
+                Chart.register(window['chartjs-plugin-annotation']);
+            } else {
+                console.error('Chart.js annotation plugin not loaded');
+            }
+        });
+    </script>
+    <!-- 最后加载我们的主脚本 -->
+    <script src="script.js"></script>
+</body>
+</html> 

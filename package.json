@@ -1,0 +1,12 @@
+{
+  "name": "blood-pressure-analysis",
+  "version": "1.0.0",
+  "description": "血压数据分析系统",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+} 
