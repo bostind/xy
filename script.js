@@ -161,12 +161,12 @@ function updateStats(data, originalCount) {
             <span class="value">${data.length} 次</span>
         </p>
         <p>
-            <span class="label">高压异常次数</span>
+            <span class="label">高压异常次数<span class="info-icon" title="超过${pressureSettings.highPressureMax}mmHg的次数">?</span></span>
             <span class="value">${abnormalStats.highAbnormal} 次</span>
             <span class="percentage">(${abnormalStats.highAbnormalPercentage}%)</span>
         </p>
         <p>
-            <span class="label">低压异常次数</span>
+            <span class="label">低压异常次数<span class="info-icon" title="超过${pressureSettings.lowPressureMax}mmHg的次数">?</span></span>
             <span class="value">${abnormalStats.lowAbnormal} 次</span>
             <span class="percentage">(${abnormalStats.lowAbnormalPercentage}%)</span>
         </p>
@@ -175,10 +175,6 @@ function updateStats(data, originalCount) {
     // 更新高压统计
     document.getElementById('highPressureStats').innerHTML = `
         <p>
-            <span class="label">平均值</span>
-            <span class="value">${highPressureStats.average} mmHg</span>
-        </p>
-        <p>
             <span class="label">最高值</span>
             <span class="value">${highPressureStats.max} mmHg</span>
         </p>
@@ -186,14 +182,14 @@ function updateStats(data, originalCount) {
             <span class="label">最低值</span>
             <span class="value">${highPressureStats.min} mmHg</span>
         </p>
+        <p>
+            <span class="label">平均值</span>
+            <span class="value">${highPressureStats.average} mmHg</span>
+        </p>
     `;
     
     // 更新低压统计
     document.getElementById('lowPressureStats').innerHTML = `
-        <p>
-            <span class="label">平均值</span>
-            <span class="value">${lowPressureStats.average} mmHg</span>
-        </p>
         <p>
             <span class="label">最高值</span>
             <span class="value">${lowPressureStats.max} mmHg</span>
@@ -202,14 +198,14 @@ function updateStats(data, originalCount) {
             <span class="label">最低值</span>
             <span class="value">${lowPressureStats.min} mmHg</span>
         </p>
+        <p>
+            <span class="label">平均值</span>
+            <span class="value">${lowPressureStats.average} mmHg</span>
+        </p>
     `;
     
     // 更新脉搏统计
     document.getElementById('pulseStats').innerHTML = `
-        <p>
-            <span class="label">平均值</span>
-            <span class="value">${pulseStats.average} 次/分</span>
-        </p>
         <p>
             <span class="label">最高值</span>
             <span class="value">${pulseStats.max} 次/分</span>
@@ -217,6 +213,10 @@ function updateStats(data, originalCount) {
         <p>
             <span class="label">最低值</span>
             <span class="value">${pulseStats.min} 次/分</span>
+        </p>
+        <p>
+            <span class="label">平均值</span>
+            <span class="value">${pulseStats.average} 次/分</span>
         </p>
     `;
 }
