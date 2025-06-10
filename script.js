@@ -129,21 +129,116 @@ async function loadDataFromFile(file) {
 // 解析CSV数据
 function parseCSV(csv) {
     const lines = csv.split('\n');
-    const headers = lines[0].split(',');
+    const headers = lines[0].split(/[\t,]/).map(h => h.trim()); // 支持制表符和逗号分隔
+    
+    // 查找所需列的索引
+    const findColumnIndex = (possibleNames) => {
+        for (const name of possibleNames) {
+            const index = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
+            if (index !== -1) return index;
+        }
+        return -1;
+    };
+
+    // 查找各列的索引
+    const dateIndex = findColumnIndex(['日期', 'date', '时间', 'time']);
+    const highPressureIndex = findColumnIndex(['高压', 'high', '收缩压', 'systolic']);
+    const lowPressureIndex = findColumnIndex(['低压', 'low', '舒张压', 'diastolic']);
+    const pulseIndex = findColumnIndex(['脉搏', 'pulse', '心率', 'heart rate']);
+
+    // 验证必要的列是否存在
+    if (dateIndex === -1 || highPressureIndex === -1 || lowPressureIndex === -1 || pulseIndex === -1) {
+        throw new Error('CSV文件格式错误：缺少必要的列（日期、高压、低压、脉搏）');
+    }
+
     const data = [];
+    let errorLines = [];
+    
+    // 解析日期字符串
+    function parseDate(dateStr) {
+        // 移除多余的空格
+        dateStr = dateStr.trim();
+        
+        // 尝试多种日期格式
+        const formats = [
+            // YYYY/MM/DD HH:mm
+            /^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{1,2})$/,
+            // YYYY-MM-DD HH:mm
+            /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2})$/,
+            // YYYY/MM/DD HH:mm:ss
+            /^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/,
+            // YYYY-MM-DD HH:mm:ss
+            /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/
+        ];
+
+        for (const format of formats) {
+            const match = dateStr.match(format);
+            if (match) {
+                const [_, year, month, day, hour, minute, second = '00'] = match;
+                return new Date(year, month - 1, day, hour, minute, second);
+            }
+        }
+
+        throw new Error(`无法解析日期格式: ${dateStr}`);
+    }
     
     for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
-        const values = lines[i].split(',');
-        const entry = {
-            date: new Date(values[0]),
-            highPressure: parseInt(values[1]),
-            lowPressure: parseInt(values[2]),
-            pulse: parseInt(values[3])
-        };
-        data.push(entry);
+        
+        const values = lines[i].split(/[\t,]/).map(v => v.trim());
+        
+        try {
+            // 解析日期
+            const date = parseDate(values[dateIndex]);
+
+            // 解析数值
+            const highPressure = parseInt(values[highPressureIndex]);
+            const lowPressure = parseInt(values[lowPressureIndex]);
+            const pulse = parseInt(values[pulseIndex]);
+
+            // 验证数值
+            if (isNaN(highPressure) || isNaN(lowPressure) || isNaN(pulse)) {
+                throw new Error('数值格式错误');
+            }
+
+            // 验证数值范围
+            if (highPressure < 60 || highPressure > 250) {
+                throw new Error('高压数值超出正常范围');
+            }
+            if (lowPressure < 40 || lowPressure > 150) {
+                throw new Error('低压数值超出正常范围');
+            }
+            if (pulse < 40 || pulse > 200) {
+                throw new Error('脉搏数值超出正常范围');
+            }
+
+            data.push({
+                date: date,
+                highPressure: highPressure,
+                lowPressure: lowPressure,
+                pulse: pulse
+            });
+        } catch (error) {
+            errorLines.push({
+                line: i + 1,
+                content: lines[i],
+                error: error.message
+            });
+        }
     }
-    
+
+    // 如果有错误行，显示错误信息
+    if (errorLines.length > 0) {
+        const errorMessage = `发现 ${errorLines.length} 行数据格式错误：\n` +
+            errorLines.map(e => `第 ${e.line} 行: ${e.error}\n数据: ${e.content}`).join('\n');
+        console.warn(errorMessage);
+        // 显示错误信息到UI
+        const fileInfo = document.getElementById('fileInfo');
+        if (fileInfo) {
+            fileInfo.innerHTML = `<span style="color: red;">发现 ${errorLines.length} 行数据格式错误，请检查数据格式</span>`;
+        }
+    }
+
     return data;
 }
 
