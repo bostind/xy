@@ -129,7 +129,7 @@ async function loadDataFromFile(file) {
 // 解析CSV数据
 function parseCSV(csv) {
     const lines = csv.split('\n');
-    const headers = lines[0].split(/[\t,]/).map(h => h.trim()); // 支持制表符和逗号分隔
+    const headers = lines[0].split(/[\t,]/).map(h => h.trim().replace(/^["']|["']$/g, '')); // 支持制表符和逗号分隔，并移除引号
     
     // 查找所需列的索引
     const findColumnIndex = (possibleNames) => {
@@ -154,40 +154,36 @@ function parseCSV(csv) {
     const data = [];
     let errorLines = [];
     
-    // 解析日期字符串
-    function parseDate(dateStr) {
-        // 移除多余的空格
-        dateStr = dateStr.trim();
+    // 解析CSV行
+    function parseCSVLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
         
-        // 尝试多种日期格式
-        const formats = [
-            // YYYY/MM/DD HH:mm
-            /^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{1,2})$/,
-            // YYYY-MM-DD HH:mm
-            /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2})$/,
-            // YYYY/MM/DD HH:mm:ss
-            /^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/,
-            // YYYY-MM-DD HH:mm:ss
-            /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/
-        ];
-
-        for (const format of formats) {
-            const match = dateStr.match(format);
-            if (match) {
-                const [_, year, month, day, hour, minute, second = '00'] = match;
-                return new Date(year, month - 1, day, hour, minute, second);
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            
+            if (char === '"' || char === "'") {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(current.trim().replace(/^["']|["']$/g, ''));
+                current = '';
+            } else {
+                current += char;
             }
         }
-
-        throw new Error(`无法解析日期格式: ${dateStr}`);
+        
+        // 添加最后一个字段
+        result.push(current.trim().replace(/^["']|["']$/g, ''));
+        return result;
     }
     
     for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
         
-        const values = lines[i].split(/[\t,]/).map(v => v.trim());
-        
         try {
+            const values = parseCSVLine(lines[i]);
+            
             // 只提取必要的四列数据
             const date = parseDate(values[dateIndex]);
             const highPressure = parseInt(values[highPressureIndex]);
@@ -238,6 +234,42 @@ function parseCSV(csv) {
     }
 
     return data;
+}
+
+// 解析日期字符串
+function parseDate(dateStr) {
+    // 移除多余的空格和引号
+    dateStr = dateStr.trim().replace(/^["']|["']$/g, '');
+    
+    // 尝试多种日期格式
+    const formats = [
+        // YYYY-MM-DD HH:mm:ss
+        /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/,
+        // YYYY/MM/DD HH:mm:ss
+        /^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/,
+        // YYYY-MM-DD HH:mm
+        /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2})$/,
+        // YYYY/MM/DD HH:mm
+        /^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{1,2})$/,
+        // YYYY-MM-DD HH:mm:ss.SSS
+        /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})\.(\d{1,3})$/,
+        // YYYY/MM/DD HH:mm:ss.SSS
+        /^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})\.(\d{1,3})$/,
+        // YYYY-MM-DD HH:mm:ss,SSS
+        /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2}),(\d{1,3})$/,
+        // YYYY/MM/DD HH:mm:ss,SSS
+        /^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2}),(\d{1,3})$/
+    ];
+
+    for (const format of formats) {
+        const match = dateStr.match(format);
+        if (match) {
+            const [_, year, month, day, hour, minute, second = '00'] = match;
+            return new Date(year, month - 1, day, hour, minute, second);
+        }
+    }
+
+    throw new Error(`无法解析日期格式: ${dateStr}`);
 }
 
 // 计算统计数据
@@ -348,24 +380,147 @@ function updateStats(data, originalCount) {
     `;
 }
 
+// 日期时间格式化函数
+function formatDateTime(date, format = 'full') {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    switch (format) {
+        case 'full':
+            return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+        case 'date':
+            return `${year}/${month}/${day}`;
+        case 'time':
+            return `${hours}:${minutes}`;
+        case 'compact':
+            return `${month}/${day} ${hours}:${minutes}`;
+        case 'short':
+            return `${month}-${day} ${hours}:${minutes}`;
+        default:
+            return `${year}/${month}/${day} ${hours}:${minutes}`;
+    }
+}
+
+// 智能日期时间格式化
+function smartFormatDateTime(date) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    
+    if (dateOnly.getTime() === today.getTime()) {
+        return `今天 ${formatDateTime(date, 'time')}`;
+    } else if (dateOnly.getTime() === yesterday.getTime()) {
+        return `昨天 ${formatDateTime(date, 'time')}`;
+    } else if (date.getFullYear() === now.getFullYear()) {
+        return formatDateTime(date, 'compact');
+    } else {
+        return formatDateTime(date, 'short');
+    }
+}
+
 // 更新数据表格
 function updateTable(data) {
+    const table = document.getElementById('dataTable').parentElement;
     const tbody = document.getElementById('dataTable');
-    tbody.innerHTML = '';
     
+    // 清空表格内容
+    table.innerHTML = '';
+    
+    // 创建表头
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th style="min-width: 180px;" class="date-column">测量时间</th>
+            <th style="min-width: 100px;">高压 (mmHg)</th>
+            <th style="min-width: 100px;">低压 (mmHg)</th>
+            <th style="min-width: 100px;">脉搏 (次/分)</th>
+        </tr>
+    `;
+    
+    // 重新创建tbody
+    const newTbody = document.createElement('tbody');
+    newTbody.id = 'dataTable';
+    
+    // 添加表头和数据行
+    table.appendChild(thead);
+    table.appendChild(newTbody);
+    
+    // 添加数据行
     data.forEach(entry => {
         const row = document.createElement('tr');
         const highPressureClass = entry.highPressure > pressureSettings.highPressureMax ? 'abnormal-high' : '';
         const lowPressureClass = entry.lowPressure > pressureSettings.lowPressureMax ? 'abnormal-low' : '';
         
+        // 格式化时间显示
+        const date = new Date(entry.date);
+        const fullDateTime = formatDateTime(date, 'full');
+        const smartDateTime = smartFormatDateTime(date);
+        
         row.innerHTML = `
-            <td>${entry.date.toLocaleString()}</td>
-            <td class="${highPressureClass}">${entry.highPressure}</td>
-            <td class="${lowPressureClass}">${entry.lowPressure}</td>
-            <td>${entry.pulse}</td>
+            <td class="date-cell" title="${fullDateTime}">${smartDateTime}</td>
+            <td class="${highPressureClass}" title="${entry.highPressure} mmHg">${entry.highPressure}</td>
+            <td class="${lowPressureClass}" title="${entry.lowPressure} mmHg">${entry.lowPressure}</td>
+            <td title="${entry.pulse} 次/分">${entry.pulse}</td>
         `;
-        tbody.appendChild(row);
+        newTbody.appendChild(row);
     });
+    
+    // 添加表格排序功能
+    const headers = thead.getElementsByTagName('th');
+    for (let i = 0; i < headers.length; i++) {
+        headers[i].addEventListener('click', function() {
+            sortTable(i);
+        });
+        headers[i].style.cursor = 'pointer';
+        headers[i].title = '点击排序';
+    }
+}
+
+// 表格排序函数
+function sortTable(columnIndex) {
+    const table = document.getElementById('dataTable').parentElement;
+    const tbody = document.getElementById('dataTable');
+    const rows = Array.from(tbody.getElementsByTagName('tr'));
+    const header = table.getElementsByTagName('th')[columnIndex];
+    
+    // 切换排序方向
+    const isAscending = header.classList.contains('asc') ? false : true;
+    
+    // 移除所有表头的排序标记
+    Array.from(table.getElementsByTagName('th')).forEach(th => {
+        th.classList.remove('asc', 'desc');
+    });
+    
+    // 添加当前排序方向标记
+    header.classList.add(isAscending ? 'asc' : 'desc');
+    
+    // 排序行
+    rows.sort((a, b) => {
+        const aValue = a.cells[columnIndex].textContent.trim();
+        const bValue = b.cells[columnIndex].textContent.trim();
+        
+        if (columnIndex === 0) {
+            // 日期列特殊处理
+            return isAscending ? 
+                new Date(aValue) - new Date(bValue) : 
+                new Date(bValue) - new Date(aValue);
+        } else {
+            // 数值列处理
+            const aNum = parseInt(aValue);
+            const bNum = parseInt(bValue);
+            return isAscending ? aNum - bNum : bNum - aNum;
+        }
+    });
+    
+    // 重新插入排序后的行
+    rows.forEach(row => tbody.appendChild(row));
 }
 
 // 创建图表

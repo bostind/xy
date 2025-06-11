@@ -184,28 +184,53 @@ h1 {
     padding: 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     overflow-x: auto;
+    margin-bottom: 30px;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
+    table-layout: fixed;
 }
 
 th, td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #eee;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 th {
     background-color: #f8f9fa;
     font-weight: 600;
     color: #2c3e50;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+th:hover {
+    background-color: #e9ecef;
 }
 
 tr:hover {
     background-color: #f8f9fa;
+}
+
+/* 表格排序样式 */
+th.asc::after {
+    content: ' ▲';
+    font-size: 0.8em;
+    color: #666;
+}
+
+th.desc::after {
+    content: ' ▼';
+    font-size: 0.8em;
+    color: #666;
 }
 
 /* 异常值样式 */
@@ -250,12 +275,22 @@ tr:hover {
     
     th, td {
         padding: 8px;
+        font-size: 0.9em;
+    }
+    
+    th {
+        min-width: 120px !important;
+    }
+    
+    td {
+        max-width: 120px;
     }
 }
 
 /* 自定义滚动条 */
 .table-container::-webkit-scrollbar {
     width: 8px;
+    height: 8px;
 }
 
 .table-container::-webkit-scrollbar-track {
@@ -383,4 +418,48 @@ tr:hover {
     height: 1px;
     background: currentColor;
     border-radius: 0 !important;
+}
+
+/* 日期时间列样式 */
+.date-column {
+    position: relative;
+}
+
+.date-cell {
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+    position: relative;
+}
+
+.date-cell:hover {
+    overflow: visible;
+    z-index: 1;
+}
+
+.date-cell:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    white-space: nowrap;
+    z-index: 2;
+}
+
+/* 响应式日期时间显示 */
+@media (max-width: 768px) {
+    .date-cell {
+        max-width: 120px;
+        font-size: 0.9em;
+    }
+    
+    .date-cell:hover::after {
+        font-size: 0.9em;
+    }
 } 
