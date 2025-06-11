@@ -70,12 +70,15 @@ function preprocessData(data) {
         group.pulse.push(entry.pulse);
     });
     
-    // 计算每组的平均值
+    // 计算每组的平均值和标准差
     const processedData = Array.from(groups.values()).map(group => ({
         date: group.date,
         highPressure: Math.round(group.highPressure.reduce((a, b) => a + b, 0) / group.highPressure.length),
         lowPressure: Math.round(group.lowPressure.reduce((a, b) => a + b, 0) / group.lowPressure.length),
-        pulse: Math.round(group.pulse.reduce((a, b) => a + b, 0) / group.pulse.length)
+        pulse: Math.round(group.pulse.reduce((a, b) => a + b, 0) / group.pulse.length),
+        highPressureStdDev: calculateStdDev(group.highPressure),
+        lowPressureStdDev: calculateStdDev(group.lowPressure),
+        pulseStdDev: calculateStdDev(group.pulse)
     }));
     
     return {
@@ -607,6 +610,9 @@ function updateStats(data, originalCount) {
     
     // 创建血压负荷图
     createPressureLoadChart(pressureLoad);
+    
+    // 创建标准差图表
+    createStdDevChart(highPressureStdDev, lowPressureStdDev, pulseStdDev);
 }
 
 // 创建昼夜差异图表
@@ -1949,6 +1955,68 @@ function createCharts() {
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 创建标准差分析图表
+function createStdDevChart(highPressureStdDev, lowPressureStdDev, pulseStdDev) {
+    const ctx = document.getElementById('stdDevChart').getContext('2d');
+    
+    // 检查并销毁现有图表
+    if (window.stdDevChart instanceof Chart) {
+        window.stdDevChart.destroy();
+    }
+    
+    // 创建新图表
+    window.stdDevChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['高压标准差', '低压标准差', '脉搏标准差'],
+            datasets: [{
+                data: [highPressureStdDev, lowPressureStdDev, pulseStdDev],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',   // 高压 - 红色
+                    'rgba(54, 162, 235, 0.7)',   // 低压 - 蓝色
+                    'rgba(75, 192, 192, 0.7)'    // 脉搏 - 青色
+                ],
+                borderColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(54, 162, 235)',
+                    'rgb(75, 192, 192)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '血压和脉搏标准差分析',
+                    font: {
+                        size: 16
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            return `${context.label}: ${value.toFixed(2)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '标准差'
                     }
                 }
             }
