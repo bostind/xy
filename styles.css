@@ -505,4 +505,13 @@ th.desc::after {
     .chart-stats-container .stats-card {
         width: 100%;
     }
+}
+
+/* 初始状态下隐藏所有统计和图表容器 */
+.settings-panel,
+.stats-container,
+.chart-container,
+.chart-stats-container,
+.table-container {
+    display: none;
 } 

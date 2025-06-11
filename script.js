@@ -102,6 +102,13 @@ async function init() {
             fileInfo.textContent = `已选择: ${file.name}`;
             const rawData = await loadDataFromFile(file);
             if (rawData.length > 0) {
+                // 显示所有元素
+                document.querySelector('.settings-panel').style.display = 'block';
+                document.querySelector('.stats-container').style.display = 'grid';
+                document.querySelectorAll('.chart-container').forEach(el => el.style.display = 'block');
+                document.querySelectorAll('.chart-stats-container').forEach(el => el.style.display = 'flex');
+                document.querySelector('.table-container').style.display = 'block';
+                
                 const { originalCount, processedData } = preprocessData(rawData);
                 updateStats(processedData, originalCount);
                 updateTable(processedData);
