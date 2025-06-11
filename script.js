@@ -1613,22 +1613,28 @@ function updateCharts() {
 function createStdDevChart(highPressureStdDev, lowPressureStdDev, pulseStdDev) {
     const ctx = document.getElementById('stdDevChart').getContext('2d');
     
-    // 检查并销毁现有图表
     if (window.stdDevChart instanceof Chart) {
         window.stdDevChart.destroy();
     }
     
-    // 创建新图表
+    const labels = ['高压标准差', '低压标准差', '脉搏标准差'];
+    const data = [
+        parseFloat(highPressureStdDev),
+        parseFloat(lowPressureStdDev),
+        parseFloat(pulseStdDev)
+    ];
+    
     window.stdDevChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['高压标准差', '低压标准差', '脉搏标准差'],
+            labels: labels,
             datasets: [{
-                data: [highPressureStdDev, lowPressureStdDev, pulseStdDev],
+                label: '标准差',
+                data: data,
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.7)',   // 高压 - 红色
-                    'rgba(54, 162, 235, 0.7)',   // 低压 - 蓝色
-                    'rgba(75, 192, 192, 0.7)'    // 脉搏 - 青色
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(75, 192, 192, 0.7)'
                 ],
                 borderColor: [
                     'rgb(255, 99, 132)',
@@ -1649,11 +1655,13 @@ function createStdDevChart(highPressureStdDev, lowPressureStdDev, pulseStdDev) {
                         size: 16
                     }
                 },
+                legend: {
+                    display: false
+                },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            const value = context.raw;
-                            return `${context.label}: ${value.toFixed(2)}`;
+                            return `${context.dataset.label}: ${context.raw.toFixed(1)}`;
                         }
                     }
                 }
@@ -1664,6 +1672,12 @@ function createStdDevChart(highPressureStdDev, lowPressureStdDev, pulseStdDev) {
                     title: {
                         display: true,
                         text: '标准差'
+                    }
+                },
+                x: {
+                    title: {
+                        display: false,
+                        text: '测量指标'
                     }
                 }
             }
