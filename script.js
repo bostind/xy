@@ -141,10 +141,10 @@ function parseCSV(csv) {
     };
 
     // 查找各列的索引
-    const dateIndex = findColumnIndex(['日期', 'date', '时间', 'time']);
-    const highPressureIndex = findColumnIndex(['高压', 'high', '收缩压', 'systolic']);
-    const lowPressureIndex = findColumnIndex(['低压', 'low', '舒张压', 'diastolic']);
-    const pulseIndex = findColumnIndex(['脉搏', 'pulse', '心率', 'heart rate']);
+    const dateIndex = findColumnIndex(['日期', 'date', '时间', 'time', '测量时间', '测量日期']);
+    const highPressureIndex = findColumnIndex(['高压', 'high', '收缩压', 'systolic', '收缩']);
+    const lowPressureIndex = findColumnIndex(['低压', 'low', '舒张压', 'diastolic', '舒张']);
+    const pulseIndex = findColumnIndex(['脉搏', 'pulse', '心率', 'heart rate', '心跳']);
 
     // 验证必要的列是否存在
     if (dateIndex === -1 || highPressureIndex === -1 || lowPressureIndex === -1 || pulseIndex === -1) {
@@ -188,10 +188,8 @@ function parseCSV(csv) {
         const values = lines[i].split(/[\t,]/).map(v => v.trim());
         
         try {
-            // 解析日期
+            // 只提取必要的四列数据
             const date = parseDate(values[dateIndex]);
-
-            // 解析数值
             const highPressure = parseInt(values[highPressureIndex]);
             const lowPressure = parseInt(values[lowPressureIndex]);
             const pulse = parseInt(values[pulseIndex]);
