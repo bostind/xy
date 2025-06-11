@@ -734,7 +734,7 @@ function createDayNightChart(dayNightDiff) {
             scales: {
                 x: {
                     title: {
-                        display: true,
+                        display: false,
                         text: '日期'
                     },
                     grid: {

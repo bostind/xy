@@ -474,4 +474,35 @@ th.desc::after {
     .date-cell:hover::after {
         font-size: 0.9em;
     }
+}
+
+/* 图表和统计卡片并排布局 */
+.chart-stats-container {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+    align-items: stretch;
+}
+
+.chart-stats-container .chart-container {
+    flex: 2;
+    margin: 0;
+}
+
+.chart-stats-container .stats-card {
+    flex: 1;
+    margin: 0;
+    min-width: 250px;
+}
+
+/* 响应式布局优化 */
+@media (max-width: 768px) {
+    .chart-stats-container {
+        flex-direction: column;
+    }
+    
+    .chart-stats-container .chart-container,
+    .chart-stats-container .stats-card {
+        width: 100%;
+    }
 } 
