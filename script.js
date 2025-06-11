@@ -302,12 +302,120 @@ function calculateAbnormalStats(data) {
     };
 }
 
+// 计算标准差
+function calculateStdDev(values) {
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const squareDiffs = values.map(value => {
+        const diff = value - mean;
+        return diff * diff;
+    });
+    const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / squareDiffs.length;
+    return Math.sqrt(avgSquareDiff).toFixed(1);
+}
+
+// 计算昼夜差异
+function calculateDayNightDifference(data) {
+    const dayData = data.filter(entry => {
+        const hour = new Date(entry.date).getHours();
+        return hour >= 6 && hour < 18;
+    });
+    
+    const nightData = data.filter(entry => {
+        const hour = new Date(entry.date).getHours();
+        return hour < 6 || hour >= 18;
+    });
+    
+    const dayHighAvg = dayData.reduce((sum, entry) => sum + entry.highPressure, 0) / dayData.length;
+    const nightHighAvg = nightData.reduce((sum, entry) => sum + entry.highPressure, 0) / nightData.length;
+    const dayLowAvg = dayData.reduce((sum, entry) => sum + entry.lowPressure, 0) / dayData.length;
+    const nightLowAvg = nightData.reduce((sum, entry) => sum + entry.lowPressure, 0) / nightData.length;
+    
+    const highDiff = ((dayHighAvg - nightHighAvg) / nightHighAvg * 100).toFixed(1);
+    const lowDiff = ((dayLowAvg - nightLowAvg) / nightLowAvg * 100).toFixed(1);
+    
+    return {
+        dayHighAvg: dayHighAvg.toFixed(1),
+        nightHighAvg: nightHighAvg.toFixed(1),
+        dayLowAvg: dayLowAvg.toFixed(1),
+        nightLowAvg: nightLowAvg.toFixed(1),
+        highDiff,
+        lowDiff,
+        isDipper: highDiff >= 10 && lowDiff >= 10
+    };
+}
+
+// 血压分类统计
+function calculatePressureCategories(data) {
+    const categories = {
+        normal: { count: 0, label: '正常血压 (<120/80)' },
+        elevated: { count: 0, label: '正常高值 (120-129/<80)' },
+        stage1: { count: 0, label: '轻度高血压 (130-139/80-89)' },
+        stage2: { count: 0, label: '中度高血压 (140-159/90-99)' },
+        stage3: { count: 0, label: '重度高血压 (≥160/≥100)' }
+    };
+    
+    data.forEach(entry => {
+        if (entry.highPressure < 120 && entry.lowPressure < 80) {
+            categories.normal.count++;
+        } else if (entry.highPressure >= 120 && entry.highPressure <= 129 && entry.lowPressure < 80) {
+            categories.elevated.count++;
+        } else if ((entry.highPressure >= 130 && entry.highPressure <= 139) || (entry.lowPressure >= 80 && entry.lowPressure <= 89)) {
+            categories.stage1.count++;
+        } else if ((entry.highPressure >= 140 && entry.highPressure <= 159) || (entry.lowPressure >= 90 && entry.lowPressure <= 99)) {
+            categories.stage2.count++;
+        } else if (entry.highPressure >= 160 || entry.lowPressure >= 100) {
+            categories.stage3.count++;
+        }
+    });
+    
+    return categories;
+}
+
+// 计算血压负荷
+function calculatePressureLoad(data) {
+    const total = data.length;
+    const dayData = data.filter(entry => {
+        const hour = new Date(entry.date).getHours();
+        return hour >= 6 && hour < 18;
+    });
+    const nightData = data.filter(entry => {
+        const hour = new Date(entry.date).getHours();
+        return hour < 6 || hour >= 18;
+    });
+    
+    const highLoad = data.filter(entry => entry.highPressure > pressureSettings.highPressureMax).length;
+    const lowLoad = data.filter(entry => entry.lowPressure > pressureSettings.lowPressureMax).length;
+    const dayHighLoad = dayData.filter(entry => entry.highPressure > pressureSettings.highPressureMax).length;
+    const nightHighLoad = nightData.filter(entry => entry.highPressure > pressureSettings.highPressureMax).length;
+    const dayLowLoad = dayData.filter(entry => entry.lowPressure > pressureSettings.lowPressureMax).length;
+    const nightLowLoad = nightData.filter(entry => entry.lowPressure > pressureSettings.lowPressureMax).length;
+    
+    return {
+        totalLoad: ((highLoad + lowLoad) / (total * 2) * 100).toFixed(1),
+        highLoad: (highLoad / total * 100).toFixed(1),
+        lowLoad: (lowLoad / total * 100).toFixed(1),
+        dayHighLoad: (dayHighLoad / dayData.length * 100).toFixed(1),
+        nightHighLoad: (nightHighLoad / nightData.length * 100).toFixed(1),
+        dayLowLoad: (dayLowLoad / dayData.length * 100).toFixed(1),
+        nightLowLoad: (nightLowLoad / nightData.length * 100).toFixed(1)
+    };
+}
+
 // 更新统计信息显示
 function updateStats(data, originalCount) {
     const highPressureStats = calculateStats(data, 'highPressure');
     const lowPressureStats = calculateStats(data, 'lowPressure');
     const pulseStats = calculateStats(data, 'pulse');
     const abnormalStats = calculateAbnormalStats(data);
+    
+    // 计算新的统计信息
+    const highPressureStdDev = calculateStdDev(data.map(entry => entry.highPressure));
+    const lowPressureStdDev = calculateStdDev(data.map(entry => entry.lowPressure));
+    const pulseStdDev = calculateStdDev(data.map(entry => entry.pulse));
+    
+    const dayNightDiff = calculateDayNightDifference(data);
+    const pressureCategories = calculatePressureCategories(data);
+    const pressureLoad = calculatePressureLoad(data);
     
     // 更新测量统计
     document.getElementById('measurementStats').innerHTML = `
@@ -378,6 +486,262 @@ function updateStats(data, originalCount) {
             <span class="value">${pulseStats.average} 次/分</span>
         </p>
     `;
+    
+    // 更新标准差统计
+    document.getElementById('stdDevStats').innerHTML = `
+        <p>
+            <span class="label">高压标准差</span>
+            <span class="value">${highPressureStdDev} mmHg</span>
+        </p>
+        <p>
+            <span class="label">低压标准差</span>
+            <span class="value">${lowPressureStdDev} mmHg</span>
+        </p>
+        <p>
+            <span class="label">脉搏标准差</span>
+            <span class="value">${pulseStdDev} 次/分</span>
+        </p>
+    `;
+    
+    // 更新昼夜差异统计
+    document.getElementById('dayNightStats').innerHTML = `
+        <p>
+            <span class="label">日间高压</span>
+            <span class="value">${dayNightDiff.dayHighAvg} mmHg</span>
+        </p>
+        <p>
+            <span class="label">夜间高压</span>
+            <span class="value">${dayNightDiff.nightHighAvg} mmHg</span>
+        </p>
+        <p>
+            <span class="label">日间低压</span>
+            <span class="value">${dayNightDiff.dayLowAvg} mmHg</span>
+        </p>
+        <p>
+            <span class="label">夜间低压</span>
+            <span class="value">${dayNightDiff.nightLowAvg} mmHg</span>
+        </p>
+        <p>
+            <span class="label">高压昼夜差</span>
+            <span class="value">${dayNightDiff.highDiff}%</span>
+        </p>
+        <p>
+            <span class="label">低压昼夜差</span>
+            <span class="value">${dayNightDiff.lowDiff}%</span>
+        </p>
+        <p>
+            <span class="label">血压类型</span>
+            <span class="value">${dayNightDiff.isDipper ? '杓型' : '非杓型'}</span>
+        </p>
+    `;
+    
+    // 更新血压分类统计
+    document.getElementById('pressureCategoryStats').innerHTML = `
+        <p>
+            <span class="label">正常血压</span>
+            <span class="value">${pressureCategories.normal.count} 次</span>
+            <span class="percentage">(${((pressureCategories.normal.count / data.length) * 100).toFixed(1)}%)</span>
+        </p>
+        <p>
+            <span class="label">正常高值</span>
+            <span class="value">${pressureCategories.elevated.count} 次</span>
+            <span class="percentage">(${((pressureCategories.elevated.count / data.length) * 100).toFixed(1)}%)</span>
+        </p>
+        <p>
+            <span class="label">轻度高血压</span>
+            <span class="value">${pressureCategories.stage1.count} 次</span>
+            <span class="percentage">(${((pressureCategories.stage1.count / data.length) * 100).toFixed(1)}%)</span>
+        </p>
+        <p>
+            <span class="label">中度高血压</span>
+            <span class="value">${pressureCategories.stage2.count} 次</span>
+            <span class="percentage">(${((pressureCategories.stage2.count / data.length) * 100).toFixed(1)}%)</span>
+        </p>
+        <p>
+            <span class="label">重度高血压</span>
+            <span class="value">${pressureCategories.stage3.count} 次</span>
+            <span class="percentage">(${((pressureCategories.stage3.count / data.length) * 100).toFixed(1)}%)</span>
+        </p>
+    `;
+    
+    // 更新血压负荷统计
+    document.getElementById('pressureLoadStats').innerHTML = `
+        <p>
+            <span class="label">总负荷率</span>
+            <span class="value">${pressureLoad.totalLoad}%</span>
+        </p>
+        <p>
+            <span class="label">高压负荷率</span>
+            <span class="value">${pressureLoad.highLoad}%</span>
+        </p>
+        <p>
+            <span class="label">低压负荷率</span>
+            <span class="value">${pressureLoad.lowLoad}%</span>
+        </p>
+        <p>
+            <span class="label">日间高压负荷</span>
+            <span class="value">${pressureLoad.dayHighLoad}%</span>
+        </p>
+        <p>
+            <span class="label">夜间高压负荷</span>
+            <span class="value">${pressureLoad.nightHighLoad}%</span>
+        </p>
+        <p>
+            <span class="label">日间低压负荷</span>
+            <span class="value">${pressureLoad.dayLowLoad}%</span>
+        </p>
+        <p>
+            <span class="label">夜间低压负荷</span>
+            <span class="value">${pressureLoad.nightLowLoad}%</span>
+        </p>
+    `;
+    
+    // 创建血压分类饼图
+    createPressureCategoryChart(pressureCategories);
+    
+    // 创建血压负荷图
+    createPressureLoadChart(pressureLoad);
+}
+
+// 创建血压分类饼图
+function createPressureCategoryChart(categories) {
+    const ctx = document.getElementById('pressureCategoryChart').getContext('2d');
+    
+    // 检查并销毁现有图表
+    if (window.pressureCategoryChart instanceof Chart) {
+        window.pressureCategoryChart.destroy();
+    }
+    
+    // 创建新图表
+    window.pressureCategoryChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.values(categories).map(cat => cat.label),
+            datasets: [{
+                data: Object.values(categories).map(cat => cat.count),
+                backgroundColor: [
+                    'rgb(129, 199, 132)',  // 正常血压 - 绿色
+                    'rgb(255, 235, 59)',   // 正常高值 - 黄色
+                    'rgb(255, 152, 0)',    // 轻度高血压 - 橙色
+                    'rgb(255, 87, 34)',    // 中度高血压 - 深橙色
+                    'rgb(244, 67, 54)'     // 重度高血压 - 红色
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '血压分类分布',
+                    font: {
+                        size: 16
+                    }
+                },
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 20,
+                        padding: 15
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value}次 (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 创建血压负荷图
+function createPressureLoadChart(loadData) {
+    const ctx = document.getElementById('pressureLoadChart').getContext('2d');
+    
+    // 检查并销毁现有图表
+    if (window.pressureLoadChart instanceof Chart) {
+        window.pressureLoadChart.destroy();
+    }
+    
+    // 创建新图表
+    window.pressureLoadChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['总负荷率', '高压负荷率', '低压负荷率', '日间高压负荷', '夜间高压负荷', '日间低压负荷', '夜间低压负荷'],
+            datasets: [{
+                label: '负荷率 (%)',
+                data: [
+                    parseFloat(loadData.totalLoad),
+                    parseFloat(loadData.highLoad),
+                    parseFloat(loadData.lowLoad),
+                    parseFloat(loadData.dayHighLoad),
+                    parseFloat(loadData.nightHighLoad),
+                    parseFloat(loadData.dayLowLoad),
+                    parseFloat(loadData.nightLowLoad)
+                ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(255, 205, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(201, 203, 207, 0.7)'
+                ],
+                borderColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(255, 159, 64)',
+                    'rgb(255, 205, 86)',
+                    'rgb(75, 192, 192)',
+                    'rgb(54, 162, 235)',
+                    'rgb(153, 102, 255)',
+                    'rgb(201, 203, 207)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '血压负荷分析',
+                    font: {
+                        size: 16
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.raw}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: '负荷率 (%)'
+                    }
+                }
+            }
+        }
+    });
 }
 
 // 日期时间格式化函数
