@@ -403,6 +403,9 @@ function calculatePressureLoad(data) {
 
 // 更新统计信息显示
 function updateStats(data, originalCount) {
+    // 保存处理后的数据到全局变量
+    window.processedData = data;
+    
     const highPressureStats = calculateStats(data, 'highPressure');
     const lowPressureStats = calculateStats(data, 'lowPressure');
     const pulseStats = calculateStats(data, 'pulse');
@@ -596,11 +599,161 @@ function updateStats(data, originalCount) {
         </p>
     `;
     
+    // 创建昼夜差异图表
+    createDayNightChart(dayNightDiff);
+    
     // 创建血压分类饼图
     createPressureCategoryChart(pressureCategories);
     
     // 创建血压负荷图
     createPressureLoadChart(pressureLoad);
+}
+
+// 创建昼夜差异图表
+function createDayNightChart(dayNightDiff) {
+    const ctx = document.getElementById('dayNightChart').getContext('2d');
+    
+    // 检查并销毁现有图表
+    if (window.dayNightChart instanceof Chart) {
+        window.dayNightChart.destroy();
+    }
+    
+    // 获取所有数据点
+    const data = window.processedData;
+    if (!data || data.length === 0) {
+        console.error('No processed data available for day-night difference chart');
+        return;
+    }
+    
+    // 按日期分组数据
+    const groupedData = new Map();
+    data.forEach(entry => {
+        const date = new Date(entry.date);
+        const dateKey = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+        const hour = date.getHours();
+        const isDay = hour >= 6 && hour < 18;
+        
+        if (!groupedData.has(dateKey)) {
+            groupedData.set(dateKey, {
+                date: dateKey,
+                dayHigh: [],
+                nightHigh: [],
+                dayLow: [],
+                nightLow: []
+            });
+        }
+        
+        const group = groupedData.get(dateKey);
+        if (isDay) {
+            group.dayHigh.push(entry.highPressure);
+            group.dayLow.push(entry.lowPressure);
+        } else {
+            group.nightHigh.push(entry.highPressure);
+            group.nightLow.push(entry.lowPressure);
+        }
+    });
+    
+    // 计算每日平均值和差异
+    const chartData = Array.from(groupedData.values())
+        .filter(group => {
+            // 只保留同时有日间和夜间数据的日期
+            return group.dayHigh.length > 0 && group.nightHigh.length > 0 &&
+                   group.dayLow.length > 0 && group.nightLow.length > 0;
+        })
+        .map(group => {
+            const dayHighAvg = group.dayHigh.reduce((a, b) => a + b, 0) / group.dayHigh.length;
+            const nightHighAvg = group.nightHigh.reduce((a, b) => a + b, 0) / group.nightHigh.length;
+            const dayLowAvg = group.dayLow.reduce((a, b) => a + b, 0) / group.dayLow.length;
+            const nightLowAvg = group.nightLow.reduce((a, b) => a + b, 0) / group.nightLow.length;
+            
+            return {
+                date: group.date,
+                highDiff: dayHighAvg - nightHighAvg,
+                lowDiff: dayLowAvg - nightLowAvg,
+                dayHighAvg: dayHighAvg,
+                nightHighAvg: nightHighAvg,
+                dayLowAvg: dayLowAvg,
+                nightLowAvg: nightLowAvg
+            };
+        });
+    
+    // 创建新图表
+    window.dayNightChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.map(d => d.date),
+            datasets: [
+                {
+                    label: '高压差异',
+                    data: chartData.map(d => d.highDiff),
+                    backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                    borderColor: 'rgb(255, 159, 64)',
+                    borderWidth: 1
+                },
+                {
+                    label: '低压差异',
+                    data: chartData.map(d => d.lowDiff),
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '昼夜血压差异分析',
+                    font: {
+                        size: 16
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            return `${context.dataset.label}: ${value.toFixed(1)} mmHg`;
+                        }
+                    }
+                },
+                annotation: {
+                    annotations: {
+                        zeroLine: {
+                            type: 'line',
+                            yMin: 0,
+                            yMax: 0,
+                            borderColor: 'rgba(0, 0, 0, 0.3)',
+                            borderWidth: 1,
+                            borderDash: [5, 5]
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: '日期'
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: '血压差异 (mmHg)'
+                    },
+                    grid: {
+                        display: true,
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                }
+            }
+        }
+    });
 }
 
 // 创建血压分类饼图

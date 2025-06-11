@@ -108,6 +108,10 @@
         </div>
         
         <div class="chart-container">
+            <canvas id="dayNightChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
             <canvas id="pressureCategoryChart"></canvas>
         </div>
         
@@ -136,6 +140,8 @@
     <script src="chart.js"></script>
     <!-- 然后加载 annotation 插件 -->
     <script src="chartjs-plugin-annotation.min.js"></script>
+    <!-- 添加日期适配器 -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <!-- 注册插件 -->
     <script>
         // 确保插件在初始化之前加载
