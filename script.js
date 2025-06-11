@@ -35,10 +35,8 @@ const colorConfig = {
 };
 
 let pressureSettings = {
-    highPressureMax: 140,
-    highPressureMin: 90,
-    lowPressureMax: 90,
-    lowPressureMin: 60
+    highPressure: 140,
+    lowPressure: 90
 };
 
 // 预处理数据：5分钟间隔取平均值
@@ -293,8 +291,8 @@ function calculateStats(data, field) {
 // 计算异常值统计
 function calculateAbnormalStats(data) {
     const total = data.length;
-    const highAbnormal = data.filter(item => item.highPressure > pressureSettings.highPressureMax).length;
-    const lowAbnormal = data.filter(item => item.lowPressure > pressureSettings.lowPressureMax).length;
+    const highAbnormal = data.filter(item => item.highPressure > pressureSettings.highPressure).length;
+    const lowAbnormal = data.filter(item => item.lowPressure > pressureSettings.lowPressure).length;
     
     return {
         total,
@@ -386,12 +384,12 @@ function calculatePressureLoad(data) {
         return hour < 6 || hour >= 18;
     });
     
-    const highLoad = data.filter(entry => entry.highPressure > pressureSettings.highPressureMax).length;
-    const lowLoad = data.filter(entry => entry.lowPressure > pressureSettings.lowPressureMax).length;
-    const dayHighLoad = dayData.filter(entry => entry.highPressure > pressureSettings.highPressureMax).length;
-    const nightHighLoad = nightData.filter(entry => entry.highPressure > pressureSettings.highPressureMax).length;
-    const dayLowLoad = dayData.filter(entry => entry.lowPressure > pressureSettings.lowPressureMax).length;
-    const nightLowLoad = nightData.filter(entry => entry.lowPressure > pressureSettings.lowPressureMax).length;
+    const highLoad = data.filter(entry => entry.highPressure > pressureSettings.highPressure).length;
+    const lowLoad = data.filter(entry => entry.lowPressure > pressureSettings.lowPressure).length;
+    const dayHighLoad = dayData.filter(entry => entry.highPressure > pressureSettings.highPressure).length;
+    const nightHighLoad = nightData.filter(entry => entry.highPressure > pressureSettings.highPressure).length;
+    const dayLowLoad = dayData.filter(entry => entry.lowPressure > pressureSettings.lowPressure).length;
+    const nightLowLoad = nightData.filter(entry => entry.lowPressure > pressureSettings.lowPressure).length;
     
     return {
         totalLoad: ((highLoad + lowLoad) / (total * 2) * 100).toFixed(1),
@@ -434,12 +432,12 @@ function updateStats(data, originalCount) {
             <span class="value">${data.length} 次</span>
         </p>
         <p>
-            <span class="label">高压异常次数<span class="info-icon" title="超过${pressureSettings.highPressureMax}mmHg的次数">?</span></span>
+            <span class="label">高压异常次数<span class="info-icon" title="超过${pressureSettings.highPressure}mmHg的次数">?</span></span>
             <span class="value">${abnormalStats.highAbnormal} 次</span>
             <span class="percentage">(${abnormalStats.highAbnormalPercentage}%)</span>
         </p>
         <p>
-            <span class="label">低压异常次数<span class="info-icon" title="超过${pressureSettings.lowPressureMax}mmHg的次数">?</span></span>
+            <span class="label">低压异常次数<span class="info-icon" title="超过${pressureSettings.lowPressure}mmHg的次数">?</span></span>
             <span class="value">${abnormalStats.lowAbnormal} 次</span>
             <span class="percentage">(${abnormalStats.lowAbnormalPercentage}%)</span>
         </p>
@@ -1314,108 +1312,34 @@ function createChart(data) {
                         drawTime: 'afterDatasetsDraw'
                     },
                     annotations: {
-                        highPressureMax: {
+                        highPressure: {
                             type: 'line',
-                            yMin: pressureSettings.highPressureMax,
-                            yMax: pressureSettings.highPressureMax,
+                            yMin: pressureSettings.highPressure,
+                            yMax: pressureSettings.highPressure,
                             borderColor: colorConfig.highPressure.limit,
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
-                                content: `高压上限 ${pressureSettings.highPressureMax}mmHg`,
+                                content: `高压上限 ${pressureSettings.highPressure}mmHg`,
                                 enabled: true,
                                 position: 'start',
                                 backgroundColor: colorConfig.highPressure.limitBg,
                                 color: colorConfig.highPressure.limit
                             }
                         },
-                        highPressureMin: {
+                        lowPressure: {
                             type: 'line',
-                            yMin: pressureSettings.highPressureMin,
-                            yMax: pressureSettings.highPressureMin,
-                            borderColor: colorConfig.highPressure.limit,
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            label: {
-                                content: `高压下限 ${pressureSettings.highPressureMin}mmHg`,
-                                enabled: true,
-                                position: 'start',
-                                backgroundColor: colorConfig.highPressure.limitBg,
-                                color: colorConfig.highPressure.limit
-                            }
-                        },
-                        lowPressureMax: {
-                            type: 'line',
-                            yMin: pressureSettings.lowPressureMax,
-                            yMax: pressureSettings.lowPressureMax,
+                            yMin: pressureSettings.lowPressure,
+                            yMax: pressureSettings.lowPressure,
                             borderColor: colorConfig.lowPressure.limit,
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
-                                content: `低压上限 ${pressureSettings.lowPressureMax}mmHg`,
+                                content: `低压上限 ${pressureSettings.lowPressure}mmHg`,
                                 enabled: true,
                                 position: 'start',
                                 backgroundColor: colorConfig.lowPressure.limitBg,
                                 color: colorConfig.lowPressure.limit
-                            }
-                        },
-                        lowPressureMin: {
-                            type: 'line',
-                            yMin: pressureSettings.lowPressureMin,
-                            yMax: pressureSettings.lowPressureMin,
-                            borderColor: colorConfig.lowPressure.limit,
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            label: {
-                                content: `低压下限 ${pressureSettings.lowPressureMin}mmHg`,
-                                enabled: true,
-                                position: 'start',
-                                backgroundColor: colorConfig.lowPressure.limitBg,
-                                color: colorConfig.lowPressure.limit
-                            }
-                        },
-                        highPressureAvg: {
-                            type: 'line',
-                            yMin: highPressureAvg,
-                            yMax: highPressureAvg,
-                            borderColor: colorConfig.highPressure.avg,
-                            borderWidth: 2,
-                            borderDash: [],
-                            yScaleID: 'y1',
-                            label: {
-                                content: `高压平均值 ${highPressureAvg}mmHg`,
-                                enabled: true,
-                                position: 'right',
-                                backgroundColor: colorConfig.highPressure.bg,
-                                color: colorConfig.highPressure.avg,
-                                xAdjust: 5,
-                                yAdjust: -15,
-                                padding: 4,
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        lowPressureAvg: {
-                            type: 'line',
-                            yMin: lowPressureAvg,
-                            yMax: lowPressureAvg,
-                            borderColor: colorConfig.lowPressure.avg,
-                            borderWidth: 2,
-                            borderDash: [],
-                            yScaleID: 'y1',
-                            label: {
-                                content: `低压平均值 ${lowPressureAvg}mmHg`,
-                                enabled: true,
-                                position: 'right',
-                                backgroundColor: colorConfig.lowPressure.bg,
-                                color: colorConfig.lowPressure.avg,
-                                xAdjust: 5,
-                                yAdjust: 15,
-                                padding: 4,
-                                font: {
-                                    size: 12
-                                }
                             }
                         }
                     }
@@ -1646,10 +1570,8 @@ function createChart(data) {
 
 // 应用设置
 function applySettings() {
-    pressureSettings.highPressureMax = parseInt(document.getElementById('highPressureMax').value);
-    pressureSettings.highPressureMin = parseInt(document.getElementById('highPressureMin').value);
-    pressureSettings.lowPressureMax = parseInt(document.getElementById('lowPressureMax').value);
-    pressureSettings.lowPressureMin = parseInt(document.getElementById('lowPressureMin').value);
+    pressureSettings.highPressure = parseInt(document.getElementById('highPressure').value);
+    pressureSettings.lowPressure = parseInt(document.getElementById('lowPressure').value);
     
     // 重新加载数据并更新显示
     const fileInput = document.getElementById('csvFile');
@@ -1675,291 +1597,9 @@ pulseChart.update();  // 更新图表
 
 // 更新图表
 function updateCharts() {
-    if (bloodPressureChart) {
-        bloodPressureChart.destroy();
-        bloodPressureChart = null;
+    if (window.processedData) {
+        createChart(window.processedData);
     }
-    if (pulseChart) {
-        pulseChart.destroy();
-        pulseChart = null;
-    }
-    
-    // 重新创建图表
-    createCharts();
-}
-
-// 应用设置按钮点击事件
-document.getElementById('applySettings').addEventListener('click', function() {
-    // 更新设置
-    pressureSettings.highPressureMin = parseInt(document.getElementById('highPressureMin').value);
-    pressureSettings.highPressureMax = parseInt(document.getElementById('highPressureMax').value);
-    pressureSettings.lowPressureMin = parseInt(document.getElementById('lowPressureMin').value);
-    pressureSettings.lowPressureMax = parseInt(document.getElementById('lowPressureMax').value);
-    
-    // 更新图表
-    updateCharts();
-});
-
-// 创建图表
-function createCharts() {
-    // 创建血压图表
-    bloodPressureChart = new Chart(bloodPressureCtx, {
-        type: 'line',
-        data: {
-            labels: data.map(entry => entry.date),
-            datasets: [
-                // ... datasets configuration ...
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false,
-            },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    min: Math.floor(pressureRange.min),
-                    max: Math.ceil(pressureRange.max),
-                    title: {
-                        display: true,
-                        text: '血压 (mmHg)'
-                    },
-                    grid: {
-                        display: true,
-                        color: colorConfig.common.grid,
-                        drawBorder: true,
-                        drawOnChartArea: true,
-                        drawTicks: true
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false,
-                        drawBorder: true,
-                        drawOnChartArea: false,
-                        drawTicks: true
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    // ... legend configuration ...
-                },
-                tooltip: {
-                    // ... tooltip configuration ...
-                },
-                annotation: {
-                    common: {
-                        drawTime: 'afterDatasetsDraw'
-                    },
-                    annotations: {
-                        highPressureMax: {
-                            type: 'line',
-                            yMin: pressureSettings.highPressureMax,
-                            yMax: pressureSettings.highPressureMax,
-                            borderColor: colorConfig.highPressure.limit,
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            label: {
-                                content: `高压上限 ${pressureSettings.highPressureMax}mmHg`,
-                                enabled: true,
-                                position: 'start',
-                                backgroundColor: colorConfig.highPressure.limitBg,
-                                color: colorConfig.highPressure.limit
-                            }
-                        },
-                        highPressureMin: {
-                            type: 'line',
-                            yMin: pressureSettings.highPressureMin,
-                            yMax: pressureSettings.highPressureMin,
-                            borderColor: colorConfig.highPressure.limit,
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            label: {
-                                content: `高压下限 ${pressureSettings.highPressureMin}mmHg`,
-                                enabled: true,
-                                position: 'start',
-                                backgroundColor: colorConfig.highPressure.limitBg,
-                                color: colorConfig.highPressure.limit
-                            }
-                        },
-                        lowPressureMax: {
-                            type: 'line',
-                            yMin: pressureSettings.lowPressureMax,
-                            yMax: pressureSettings.lowPressureMax,
-                            borderColor: colorConfig.lowPressure.limit,
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            label: {
-                                content: `低压上限 ${pressureSettings.lowPressureMax}mmHg`,
-                                enabled: true,
-                                position: 'start',
-                                backgroundColor: colorConfig.lowPressure.limitBg,
-                                color: colorConfig.lowPressure.limit
-                            }
-                        },
-                        lowPressureMin: {
-                            type: 'line',
-                            yMin: pressureSettings.lowPressureMin,
-                            yMax: pressureSettings.lowPressureMin,
-                            borderColor: colorConfig.lowPressure.limit,
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            label: {
-                                content: `低压下限 ${pressureSettings.lowPressureMin}mmHg`,
-                                enabled: true,
-                                position: 'start',
-                                backgroundColor: colorConfig.lowPressure.limitBg,
-                                color: colorConfig.lowPressure.limit
-                            }
-                        },
-                        highPressureAvg: {
-                            type: 'line',
-                            yMin: highPressureAvg,
-                            yMax: highPressureAvg,
-                            borderColor: colorConfig.highPressure.avg,
-                            borderWidth: 2,
-                            borderDash: [],
-                            yScaleID: 'y1',
-                            label: {
-                                content: `高压平均值 ${highPressureAvg}mmHg`,
-                                enabled: true,
-                                position: 'right',
-                                backgroundColor: colorConfig.highPressure.bg,
-                                color: colorConfig.highPressure.avg,
-                                xAdjust: 5,
-                                yAdjust: -15,
-                                padding: 4,
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        lowPressureAvg: {
-                            type: 'line',
-                            yMin: lowPressureAvg,
-                            yMax: lowPressureAvg,
-                            borderColor: colorConfig.lowPressure.avg,
-                            borderWidth: 2,
-                            borderDash: [],
-                            yScaleID: 'y1',
-                            label: {
-                                content: `低压平均值 ${lowPressureAvg}mmHg`,
-                                enabled: true,
-                                position: 'right',
-                                backgroundColor: colorConfig.lowPressure.bg,
-                                color: colorConfig.lowPressure.avg,
-                                xAdjust: 5,
-                                yAdjust: 15,
-                                padding: 4,
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    // 创建脉搏图表
-    pulseChart = new Chart(pulseCtx, {
-        type: 'line',
-        data: {
-            // ... data configuration ...
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false,
-            },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    min: Math.floor(pulseRange.min),
-                    max: Math.ceil(pulseRange.max),
-                    title: {
-                        display: true,
-                        text: '脉搏 (次/分)'
-                    },
-                    grid: {
-                        display: true,
-                        color: colorConfig.common.grid,
-                        drawBorder: true,
-                        drawOnChartArea: true,
-                        drawTicks: true
-                    },
-                    position: 'left'
-                },
-                y1: {
-                    beginAtZero: false,
-                    min: Math.floor(pulseRange.min),
-                    max: Math.ceil(pulseRange.max),
-                    position: 'right',
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        display: false
-                    },
-                    afterFit: function(scale) {
-                        scale.paddingRight = 80; // 为右侧标注留出空间
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false,
-                        drawBorder: true,
-                        drawOnChartArea: false,
-                        drawTicks: true
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    // ... legend configuration ...
-                },
-                tooltip: {
-                    // ... tooltip configuration ...
-                },
-                annotation: {
-                    common: {
-                        drawTime: 'afterDatasetsDraw'
-                    },
-                    annotations: {
-                        pulseAvg: {
-                            type: 'line',
-                            yMin: pulseAvg,
-                            yMax: pulseAvg,
-                            borderColor: colorConfig.pulse.avg,
-                            borderWidth: 2,
-                            borderDash: [],
-                            yScaleID: 'y1',
-                            label: {
-                                content: `脉搏平均值 ${pulseAvg}次/分`,
-                                enabled: true,
-                                position: 'right',
-                                backgroundColor: colorConfig.pulse.bg,
-                                color: colorConfig.pulse.avg,
-                                xAdjust: 5,
-                                yAdjust: 0,
-                                padding: 4,
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    });
 }
 
 // 创建标准差分析图表
