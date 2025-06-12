@@ -108,6 +108,10 @@ async function init() {
                 document.querySelectorAll('.chart-container').forEach(el => el.style.display = 'block');
                 document.querySelectorAll('.chart-stats-container').forEach(el => el.style.display = 'flex');
                 document.querySelector('.table-container').style.display = 'block';
+                document.querySelector('.recommendations-container').style.display = 'block';
+                
+                // 隐藏文件格式要求
+                document.querySelector('.file-format-info').style.display = 'none';
                 
                 const { originalCount, processedData } = preprocessData(rawData);
                 updateStats(processedData, originalCount);
@@ -294,7 +298,7 @@ function calculateStats(data, field) {
         min: min
     };
     
-    console.log(`${field} 统计数据:`, stats);
+    //console.log(`${field} 统计数据:`, stats);
     return stats;
 }
 
@@ -1718,17 +1722,17 @@ function generateBloodPressureRecommendations(
     highPressureStdDev,
     lowPressureStdDev
 ) {
-    console.log('血压建议生成 - 输入数据:', {
-        highPressureStats,
-        lowPressureStats,
-        pulseStats,
-        abnormalStats,
-        dayNightDiff,
-        pressureCategories,
-        pressureLoad,
-        highPressureStdDev,
-        lowPressureStdDev
-    });
+    //console.log('血压建议生成 - 输入数据:', {
+    //    highPressureStats,
+    //    lowPressureStats,
+    //    pulseStats,
+    //    abnormalStats,
+    //    dayNightDiff,
+    //    pressureCategories,
+    //    pressureLoad,
+    //    highPressureStdDev,
+    //    lowPressureStdDev
+    //});
 
     const recommendations = [];
 

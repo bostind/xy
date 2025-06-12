@@ -517,7 +517,8 @@ th.desc::after {
 .stats-container,
 .chart-container,
 .chart-stats-container,
-.table-container {
+.table-container,
+.recommendations-container {
     display: none;
 }
 
@@ -571,5 +572,72 @@ th.desc::after {
     .recommendation-item {
         font-size: 13px;
         padding: 6px 10px;
+    }
+}
+
+/* 文件格式说明样式 */
+.file-format-info {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    display: block; /* 确保初始状态下显示 */
+}
+
+.file-format-info h4 {
+    color: #2c3e50;
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.file-format-info p {
+    margin: 8px 0;
+    color: #495057;
+    font-size: 14px;
+}
+
+.file-format-info ul {
+    margin: 8px 0;
+    padding-left: 20px;
+    color: #495057;
+    font-size: 14px;
+}
+
+.file-format-info li {
+    margin: 4px 0;
+}
+
+.file-format-info pre {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 13px;
+    color: #495057;
+    overflow-x: auto;
+}
+
+/* 响应式布局优化 */
+@media (max-width: 768px) {
+    .file-format-info {
+        padding: 10px;
+    }
+    
+    .file-format-info h4 {
+        font-size: 15px;
+    }
+    
+    .file-format-info p,
+    .file-format-info ul {
+        font-size: 13px;
+    }
+    
+    .file-format-info pre {
+        font-size: 12px;
+        padding: 8px;
     }
 } 

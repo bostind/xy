@@ -18,6 +18,22 @@
                     <span class="upload-text">选择血压记录文件</span>
                 </label>
                 <div id="fileInfo" class="file-info"></div>
+                <div class="file-format-info">
+                    <h4>文件格式要求：</h4>
+                    <p>1. 文件格式：CSV文件（.csv）</p>
+                    <p>2. 必需字段：</p>
+                    <ul>
+                        <li>日期时间（支持格式：YYYY-MM-DD HH:mm:ss 或 YYYY/MM/DD HH:mm:ss）</li>
+                        <li>高压（mmHg）</li>
+                        <li>低压（mmHg）</li>
+                        <li>脉搏（次/分）</li>
+                    </ul>
+                    <p>3. 示例数据：</p>
+                    <pre>日期时间,高压,低压,脉搏
+2024-03-20 08:00:00,120,80,75
+2024-03-20 12:00:00,118,78,72
+2024-03-20 18:00:00,122,82,78</pre>
+                </div>
             </div>
         </div>
         
@@ -154,7 +170,7 @@
     <!-- 然后加载 annotation 插件 -->
     <script src="chartjs-plugin-annotation.min.js"></script>
     <!-- 添加日期适配器 -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="chartjs-adapter-date-fns.bundle.min.js"></script>
     <!-- 注册插件 -->
     <script>
         // 确保插件在初始化之前加载
