@@ -521,27 +521,34 @@ th.desc::after {
     display: none;
 }
 
+/* 血压分析建议容器样式 */
+.recommendations-container {
+    margin: 20px 0;
+    width: 100%;
+}
+
 .recommendations {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border-left: 4px solid #4CAF50;
 }
 
 .recommendations h4 {
     color: #2c3e50;
-    margin: 0 0 10px 0;
+    margin: 0 0 15px 0;
     font-size: 16px;
     font-weight: 600;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
 }
 
 .recommendation-item {
     margin: 8px 0;
     padding: 8px 12px;
-    background-color: #fff;
+    background-color: #f8f9fa;
     border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     font-size: 14px;
     line-height: 1.5;
     color: #34495e;
@@ -553,4 +560,16 @@ th.desc::after {
 
 .recommendation-item:last-child {
     margin-bottom: 0;
+}
+
+/* 响应式布局优化 */
+@media (max-width: 768px) {
+    .recommendations {
+        padding: 15px;
+    }
+    
+    .recommendation-item {
+        font-size: 13px;
+        padding: 6px 10px;
+    }
 } 

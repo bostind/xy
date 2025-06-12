@@ -464,11 +464,12 @@ function updateStats(data, originalCount) {
             <span class="value">${abnormalStats.lowAbnormal} 次</span>
             <span class="percentage">(${abnormalStats.lowAbnormalPercentage}%)</span>
         </p>
-        <div class="recommendations">
-            <h4>血压分析建议</h4>
-            ${recommendations.map(rec => `<p class="recommendation-item">${rec}</p>`).join('')}
-        </div>
     `;
+
+    // 更新血压分析建议
+    document.getElementById('recommendationsContent').innerHTML = recommendations.map(rec => 
+        `<p class="recommendation-item">${rec}</p>`
+    ).join('');
     
     // 更新高压统计
     document.getElementById('highPressureStats').innerHTML = `
