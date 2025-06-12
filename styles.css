@@ -153,17 +153,22 @@ h1 {
 
 .stats-content .label {
     color: #666;
+    flex: 1;
 }
 
 .stats-content .value {
     font-weight: 500;
     color: #333;
+    text-align: right;
+    min-width: 40px;
 }
 
 .stats-content .percentage {
     color: #999;
     font-size: 12px;
     margin-left: 5px;
+    text-align: right;
+    min-width: 40px;
 }
 
 /* 图表容器样式优化 */
