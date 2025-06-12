@@ -427,6 +427,19 @@ function updateStats(data, originalCount) {
     const dayNightDiff = calculateDayNightDifference(data);
     const pressureCategories = calculatePressureCategories(data);
     const pressureLoad = calculatePressureLoad(data);
+
+    // 生成血压建议
+    const recommendations = generateBloodPressureRecommendations(
+        highPressureStats,
+        lowPressureStats,
+        pulseStats,
+        abnormalStats,
+        dayNightDiff,
+        pressureCategories,
+        pressureLoad,
+        highPressureStdDev,
+        lowPressureStdDev
+    );
     
     // 更新测量统计
     document.getElementById('measurementStats').innerHTML = `
@@ -448,6 +461,10 @@ function updateStats(data, originalCount) {
             <span class="value">${abnormalStats.lowAbnormal} 次</span>
             <span class="percentage">(${abnormalStats.lowAbnormalPercentage}%)</span>
         </p>
+        <div class="recommendations">
+            <h4>血压分析建议</h4>
+            ${recommendations.map(rec => `<p class="recommendation-item">${rec}</p>`).join('')}
+        </div>
     `;
     
     // 更新高压统计
@@ -549,27 +566,27 @@ function updateStats(data, originalCount) {
     // 更新血压分类统计
     document.getElementById('pressureCategoryStats').innerHTML = `
         <p>
-            <span class="label">正常血压</span>
+            <span class="label">正常血压(<120/80)</span>
             <span class="value">${pressureCategories.normal.count} 次</span>
             <span class="percentage">(${((pressureCategories.normal.count / data.length) * 100).toFixed(1)}%)</span>
         </p>
         <p>
-            <span class="label">正常高值</span>
+            <span class="label">正常高值(120-129/80-89)</span>
             <span class="value">${pressureCategories.elevated.count} 次</span>
             <span class="percentage">(${((pressureCategories.elevated.count / data.length) * 100).toFixed(1)}%)</span>
         </p>
         <p>
-            <span class="label">轻度高血压</span>
+            <span class="label">轻度高血压(130-139/90-99)</span>
             <span class="value">${pressureCategories.stage1.count} 次</span>
             <span class="percentage">(${((pressureCategories.stage1.count / data.length) * 100).toFixed(1)}%)</span>
         </p>
         <p>
-            <span class="label">中度高血压</span>
+            <span class="label">中度高血压(140-159/100-109)</span>
             <span class="value">${pressureCategories.stage2.count} 次</span>
             <span class="percentage">(${((pressureCategories.stage2.count / data.length) * 100).toFixed(1)}%)</span>
         </p>
         <p>
-            <span class="label">重度高血压</span>
+            <span class="label">重度高血压(160/110)</span>
             <span class="value">${pressureCategories.stage3.count} 次</span>
             <span class="percentage">(${((pressureCategories.stage3.count / data.length) * 100).toFixed(1)}%)</span>
         </p>
@@ -1683,4 +1700,60 @@ function createStdDevChart(highPressureStdDev, lowPressureStdDev, pulseStdDev) {
             }
         }
     });
+}
+
+// 生成血压建议函数
+function generateBloodPressureRecommendations(
+    highPressureStats,
+    lowPressureStats,
+    pulseStats,
+    abnormalStats,
+    dayNightDiff,
+    pressureCategories,
+    pressureLoad,
+    highPressureStdDev,
+    lowPressureStdDev
+) {
+    const recommendations = [];
+
+    // 1. 血压水平评估
+    const avgHighPressure = parseFloat(highPressureStats.average);
+    const avgLowPressure = parseFloat(lowPressureStats.average);
+    
+    if (avgHighPressure < 120 && avgLowPressure < 80) {
+        recommendations.push("您的血压处于正常水平，请继续保持健康的生活方式。");
+    } else if (avgHighPressure >= 120 && avgHighPressure <= 129 && avgLowPressure < 80) {
+        recommendations.push("您的血压处于正常高值，建议：1) 控制饮食，减少盐分摄入；2) 增加运动量；3) 保持健康体重；4) 定期监测血压。");
+    } else if ((avgHighPressure >= 130 && avgHighPressure <= 139) || (avgLowPressure >= 80 && avgLowPressure <= 89)) {
+        recommendations.push("您处于轻度高血压状态，建议：1) 立即就医咨询；2) 遵医嘱服用降压药物；3) 严格控制饮食和运动；4) 每日监测血压。");
+    } else if ((avgHighPressure >= 140 && avgHighPressure <= 159) || (avgLowPressure >= 90 && avgLowPressure <= 99)) {
+        recommendations.push("您处于中度高血压状态，建议：1) 立即就医；2) 严格遵医嘱服药；3) 改变生活方式；4) 密切监测血压变化。");
+    } else {
+        recommendations.push("您处于重度高血压状态，建议：1) 立即就医；2) 可能需要住院治疗；3) 严格遵医嘱服药；4) 每日多次监测血压。");
+    }
+
+    // 2. 血压波动分析
+    if (parseFloat(highPressureStdDev) > 15 || parseFloat(lowPressureStdDev) > 10) {
+        recommendations.push("您的血压波动较大，建议：1) 保持规律作息；2) 避免情绪激动；3) 控制饮食规律；4) 增加测量频率。");
+    }
+
+    // 3. 昼夜节律分析
+    if (!dayNightDiff.isDipper) {
+        recommendations.push("您的血压昼夜节律异常（非杓型），建议：1) 改善睡眠质量；2) 避免熬夜；3) 控制夜间活动；4) 咨询医生是否需要调整用药时间。");
+    }
+
+    // 4. 血压负荷分析
+    if (parseFloat(pressureLoad.highLoad) > 25 || parseFloat(pressureLoad.lowLoad) > 25) {
+        recommendations.push("您的血压负荷较高，建议：1) 增加降压药物剂量或种类；2) 加强生活方式干预；3) 定期复查；4) 避免剧烈运动。");
+    }
+
+    // 5. 脉搏分析
+    const avgPulse = parseFloat(pulseStats.average);
+    if (avgPulse > 100) {
+        recommendations.push("您的心率偏快，建议：1) 控制情绪；2) 避免剧烈运动；3) 咨询医生是否需要使用控制心率的药物。");
+    } else if (avgPulse < 60) {
+        recommendations.push("您的心率偏慢，建议：1) 适当增加运动量；2) 咨询医生是否需要调整降压药物。");
+    }
+
+    return recommendations;
 } 

@@ -514,4 +514,38 @@ th.desc::after {
 .chart-stats-container,
 .table-container {
     display: none;
+}
+
+.recommendations {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+}
+
+.recommendations h4 {
+    color: #2c3e50;
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.recommendation-item {
+    margin: 8px 0;
+    padding: 8px 12px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    font-size: 14px;
+    line-height: 1.5;
+    color: #34495e;
+}
+
+.recommendation-item:first-child {
+    margin-top: 0;
+}
+
+.recommendation-item:last-child {
+    margin-bottom: 0;
 } 
