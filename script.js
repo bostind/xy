@@ -288,11 +288,14 @@ function calculateStats(data, field) {
     const max = Math.max(...values);
     const min = Math.min(...values);
     
-    return {
+    const stats = {
         average: avg.toFixed(1),
         max: max,
         min: min
     };
+    
+    console.log(`${field} 统计数据:`, stats);
+    return stats;
 }
 
 // 计算异常值统计
@@ -1714,6 +1717,18 @@ function generateBloodPressureRecommendations(
     highPressureStdDev,
     lowPressureStdDev
 ) {
+    console.log('血压建议生成 - 输入数据:', {
+        highPressureStats,
+        lowPressureStats,
+        pulseStats,
+        abnormalStats,
+        dayNightDiff,
+        pressureCategories,
+        pressureLoad,
+        highPressureStdDev,
+        lowPressureStdDev
+    });
+
     const recommendations = [];
 
     // 1. 血压水平评估
@@ -1724,6 +1739,8 @@ function generateBloodPressureRecommendations(
         recommendations.push("您的血压处于正常水平，请继续保持健康的生活方式。");
     } else if (avgHighPressure >= 120 && avgHighPressure <= 129 && avgLowPressure < 80) {
         recommendations.push("您的血压处于正常高值，建议：1) 控制饮食，减少盐分摄入；2) 增加运动量；3) 保持健康体重；4) 定期监测血压。");
+    } else if (avgHighPressure < 120 && avgLowPressure >= 80 && avgLowPressure <= 89) {
+        recommendations.push("您的低压偏高，建议：1) 控制饮食，减少盐分摄入；2) 增加运动量；3) 保持健康体重；4) 定期监测血压。");
     } else if ((avgHighPressure >= 130 && avgHighPressure <= 139) || (avgLowPressure >= 80 && avgLowPressure <= 89)) {
         recommendations.push("您处于轻度高血压状态，建议：1) 立即就医咨询；2) 遵医嘱服用降压药物；3) 严格控制饮食和运动；4) 每日监测血压。");
     } else if ((avgHighPressure >= 140 && avgHighPressure <= 159) || (avgLowPressure >= 90 && avgLowPressure <= 99)) {
