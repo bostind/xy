@@ -1806,6 +1806,10 @@ async function exportToPdf() {
             orientation: 'portrait'
         });
 
+        // 添加中文字体支持
+        pdf.addFont('NotoSansSC-Regular.ttf', 'NotoSansSC', 'normal');
+        pdf.setFont('NotoSansSC');
+
         // 设置页面边距
         const margin = 10;
         const pageWidth = pdf.internal.pageSize.getWidth();
@@ -1909,8 +1913,17 @@ async function exportToPdf() {
 
         pdf.addImage(tableImgData, 'JPEG', margin, yOffset, tableImgWidth, tableImgHeight);
 
+        // 生成带时间戳的文件名
+        const now = new Date();
+        const timestamp = now.getFullYear() +
+            ('0' + (now.getMonth() + 1)).slice(-2) +
+            ('0' + now.getDate()).slice(-2) + '_' +
+            ('0' + now.getHours()).slice(-2) +
+            ('0' + now.getMinutes()).slice(-2);
+        const fileName = `血压分析报告_${timestamp}.pdf`;
+
         // 保存PDF
-        pdf.save('血压分析报告.pdf');
+        pdf.save(fileName);
         
         fileInfo.innerHTML = 'PDF报告生成成功！';
         setTimeout(() => {

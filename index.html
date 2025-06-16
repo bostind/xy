@@ -12,15 +12,17 @@
         
         <div class="upload-section">
             <div class="upload-container">
-                <input type="file" id="csvFile" accept=".csv" class="file-input">
-                <label for="csvFile" class="file-label">
-                    <span class="upload-icon">📁</span>
-                    <span class="upload-text">选择血压记录文件</span>
-                </label>
-                <button id="exportPdf" class="file-label" style="margin-left: 10px;">
-                    <span class="upload-icon">📄</span>
-                    <span class="upload-text">导出PDF报告</span>
-                </button>
+                <div class="button-group">
+                    <input type="file" id="csvFile" accept=".csv" class="file-input">
+                    <label for="csvFile" class="file-label">
+                        <span class="upload-icon">📁</span>
+                        <span class="upload-text">选择血压记录文件</span>
+                    </label>
+                    <button id="exportPdf" class="file-label">
+                        <span class="upload-icon">📄</span>
+                        <span class="upload-text">导出PDF报告</span>
+                    </button>
+                </div>
                 <div id="fileInfo" class="file-info"></div>
                 <div class="file-format-info">
                     <h4>文件格式要求：</h4>
