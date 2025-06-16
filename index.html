@@ -17,6 +17,10 @@
                     <span class="upload-icon">📁</span>
                     <span class="upload-text">选择血压记录文件</span>
                 </label>
+                <button id="exportPdf" class="file-label" style="margin-left: 10px;">
+                    <span class="upload-icon">📄</span>
+                    <span class="upload-text">导出PDF报告</span>
+                </button>
                 <div id="fileInfo" class="file-info"></div>
                 <div class="file-format-info">
                     <h4>文件格式要求：</h4>
@@ -171,6 +175,10 @@
     <script src="chartjs-plugin-annotation.min.js"></script>
     <!-- 添加日期适配器 -->
     <script src="chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- 添加PDF导出相关库 -->
+    <script src="html2canvas.min.js"></script>
+    <script src="jspdf.umd.min.js"></script>
+    <script src="html2pdf.bundle.min.js"></script>
     <!-- 注册插件 -->
     <script>
         // 确保插件在初始化之前加载

@@ -91,6 +91,10 @@ async function init() {
     const fileInput = document.getElementById('csvFile');
     const fileInfo = document.getElementById('fileInfo');
     
+    // 添加导出PDF按钮事件监听
+    const exportPdfButton = document.getElementById('exportPdf');
+    exportPdfButton.addEventListener('click', exportToPdf);
+    
     fileInput.addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -1778,4 +1782,145 @@ function generateBloodPressureRecommendations(
     }
 
     return recommendations;
+}
+
+// 导出PDF报告
+async function exportToPdf() {
+    // 检查是否有数据
+    if (!document.querySelector('.stats-container').style.display || 
+        document.querySelector('.stats-container').style.display === 'none') {
+        alert('请先选择并加载血压数据文件');
+        return;
+    }
+
+    // 显示加载提示
+    const fileInfo = document.getElementById('fileInfo');
+    const originalContent = fileInfo.innerHTML;
+    fileInfo.innerHTML = '正在生成PDF报告，请稍候...';
+
+    try {
+        // 创建PDF文档
+        const pdf = new jspdf.jsPDF({
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait'
+        });
+
+        // 设置页面边距
+        const margin = 10;
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const contentWidth = pageWidth - (margin * 2);
+
+        // 添加标题
+        pdf.setFontSize(20);
+        pdf.setTextColor(51, 51, 51);
+        const title = '血压分析报告';
+        const titleWidth = pdf.getTextWidth(title);
+        pdf.text(title, (pageWidth - titleWidth) / 2, margin + 10);
+
+        // 添加生成时间
+        pdf.setFontSize(12);
+        pdf.setTextColor(102, 102, 102);
+        const time = `生成时间：${new Date().toLocaleString()}`;
+        const timeWidth = pdf.getTextWidth(time);
+        pdf.text(time, pageWidth - margin - timeWidth, margin + 20);
+
+        let yOffset = margin + 30;
+
+        // 处理统计信息
+        const statsContainer = document.querySelector('.stats-container');
+        const statsCanvas = await html2canvas(statsContainer, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff'
+        });
+        const statsImgData = statsCanvas.toDataURL('image/jpeg', 1.0);
+        const statsImgProps = pdf.getImageProperties(statsImgData);
+        const statsImgWidth = contentWidth;
+        const statsImgHeight = (statsImgProps.height * statsImgWidth) / statsImgProps.width;
+        pdf.addImage(statsImgData, 'JPEG', margin, yOffset, statsImgWidth, statsImgHeight);
+        yOffset += statsImgHeight + 10;
+
+        // 处理建议
+        const recommendations = document.querySelector('.recommendations-container');
+        const recommendationsCanvas = await html2canvas(recommendations, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff'
+        });
+        const recommendationsImgData = recommendationsCanvas.toDataURL('image/jpeg', 1.0);
+        const recommendationsImgProps = pdf.getImageProperties(recommendationsImgData);
+        const recommendationsImgWidth = contentWidth;
+        const recommendationsImgHeight = (recommendationsImgProps.height * recommendationsImgWidth) / recommendationsImgProps.width;
+        pdf.addImage(recommendationsImgData, 'JPEG', margin, yOffset, recommendationsImgWidth, recommendationsImgHeight);
+        yOffset += recommendationsImgHeight + 10;
+
+        // 处理图表
+        const charts = document.querySelectorAll('.chart-container');
+        for (const chartContainer of charts) {
+            // 检查是否需要新页面
+            if (yOffset > pageHeight - margin) {
+                pdf.addPage();
+                yOffset = margin;
+            }
+
+            const chartCanvas = await html2canvas(chartContainer, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff'
+            });
+            const chartImgData = chartCanvas.toDataURL('image/jpeg', 1.0);
+            const chartImgProps = pdf.getImageProperties(chartImgData);
+            const chartImgWidth = contentWidth;
+            const chartImgHeight = (chartImgProps.height * chartImgWidth) / chartImgProps.width;
+
+            // 如果图表高度超过页面剩余空间，添加新页面
+            if (yOffset + chartImgHeight > pageHeight - margin) {
+                pdf.addPage();
+                yOffset = margin;
+            }
+
+            pdf.addImage(chartImgData, 'JPEG', margin, yOffset, chartImgWidth, chartImgHeight);
+            yOffset += chartImgHeight + 10;
+        }
+
+        // 处理表格
+        const table = document.querySelector('.table-container');
+        const tableCanvas = await html2canvas(table, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff'
+        });
+        const tableImgData = tableCanvas.toDataURL('image/jpeg', 1.0);
+        const tableImgProps = pdf.getImageProperties(tableImgData);
+        const tableImgWidth = contentWidth;
+        const tableImgHeight = (tableImgProps.height * tableImgWidth) / tableImgProps.width;
+
+        // 如果表格高度超过页面剩余空间，添加新页面
+        if (yOffset + tableImgHeight > pageHeight - margin) {
+            pdf.addPage();
+            yOffset = margin;
+        }
+
+        pdf.addImage(tableImgData, 'JPEG', margin, yOffset, tableImgWidth, tableImgHeight);
+
+        // 保存PDF
+        pdf.save('血压分析报告.pdf');
+        
+        fileInfo.innerHTML = 'PDF报告生成成功！';
+        setTimeout(() => {
+            fileInfo.innerHTML = originalContent;
+        }, 3000);
+    } catch (error) {
+        console.error('生成PDF报告失败:', error);
+        fileInfo.innerHTML = '生成PDF报告失败，请重试';
+        setTimeout(() => {
+            fileInfo.innerHTML = originalContent;
+        }, 3000);
+    }
 } 
