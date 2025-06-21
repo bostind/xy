@@ -35,7 +35,7 @@ const colorConfig = {
 };
 
 let pressureSettings = {
-    highPressure: 130,
+    highPressure: 135,
     lowPressure: 85
 };
 
