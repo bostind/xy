@@ -35,8 +35,8 @@ const colorConfig = {
 };
 
 let pressureSettings = {
-    highPressure: 140,
-    lowPressure: 90
+    highPressure: 130,
+    lowPressure: 85
 };
 
 // 预处理数据：5分钟间隔取平均值
